@@ -1,0 +1,82 @@
+Physical volumes -> volume groups -> logical volumes
+
+Create a physical volume from a device: pvcreate /dev/md0
+
+List physical volumes: pvs
+Get more detailed info of your physical volumes with: pvdisplay
+
+List your volume groups: vgs
+Get more detailed info of your volume groups with: vgdisplay
+ 
+Add a physical volume to an existing volume group:
+vgextend <volume group name> /dev/md0
+example: vgextend raid-volume /dev/md0
+
+Remove a physical volume from a volume group:
+vgreduce <volume group name> /dev/md0
+example: vgreduce raid-volume /dev/md0
+ 
+Create a logical volume: 
+lvcreate --name <logical volume name> --size 2G <volume group name>
+example: lvcreate --name www --size 2G raid-volume
+
+Best practice for performance:
+It is a good practice to consider RAID stripe size when preparing LVM. In case we have a RAID 5 array with 64 stripe size and 5 disks (4 data disks + 1 parity), then we would have: 
+pvcreate --dataalignment 256K /dev/sda4 -y -ff
+vgcreate --physicalextentsize 256K gluster /dev/sda4 -y
+pvs -o +pe_start
+lvcreate -n engine --size 120G gluster -y
+mkfs.xfs -f -i size=512 -d su=64k,sw=4 -n size=8192 /dev/gluster/engine
+
+Resize LVM:
+Check LVM status and layout:
+pvs && lvdisplay
+unmount lvm partition
+lvextend -L 250G /dev/v0/vms
+//define your proper LVM path instead of /dev/v0/vms
+e2fsck -f /dev/v0/vms
+resize2fs /dev/v0/vms
+
+To increase the size of a logical volume by specified value: lvextend -L +50G /dev/v0/vms
+
+Create Volume Group:
+vgcreate lvm /dev/sdb1
+
+Create logical Volume:
+lvcreate -L 3G -n vms lvm
+ 
+Reduce size of logical volume: lvreduce
+umount /home
+e2fsck -f /dev/lvm/home
+resize2fs /dev/lvm/home 60G
+lvreduce --size 60G /dev/lvm/home
+e2fsck -f /dev/lvm/home
+
+Thin LVM
+Say you have a volume group named "gluster".
+To create a thin LVM you need two steps:
+1. Create thin pool:
+lvcreate -L 20g -T /dev/gluster/thinpool
+2. Create thin LVM
+lvcreate -V 20G -T gluster/thinpool -n samba
+
+When you create a thin pool you need at least 0.5% of storage allocated for metadata. It is recommended to set it at max value of 16GB. There are some RAID stripe recommendations also from Redhat. Example:
+lvcreate --thinpool gluster/thinpool --size 1950G --chunksize 256K --poolmetadatasize 16G --zero n
+
+Resize PVS:
+Say we have pvs /dev/vda2
+first resize the partition of the pvs with fdisk.
+reboot server
+pvresize /dev/vda2
+
+# Expanding ISCSI block device
+• Expand at SAN (FreeNAS). You need just to edit its value under volumes settings.
+• at client side run: parprope /dev/sdx
+• Resize physical volume: at client side run: pvresize /dev/sdx
+• Resize LVM: example: lvextend -L +100G /dev/iscsi/freenas-iscsi
+ 
+
+
+
+
+ 
