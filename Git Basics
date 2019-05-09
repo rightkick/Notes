@@ -1,0 +1,27 @@
+Git basic commands:
+
+git clone: fully copy repo from remote
+While in the git local directory run:
+git pull: sync with remote repo
+git status
+git add -A: add all files that have changed
+git commit -m "your message"
+git commit: to enter multiple line comment
+git push: push changes to remote server
+git branch: show list of branches and highlight the active one
+git branch new_feature: create a branch named new_feature. It will contain a clone of all files from master branch.
+git checkout new_feature: switch to new branch working directory
+git merge <branch name>: merge current branch with <branch name>
+git log: show git log
+git mv file new_file: rename a file or move it arround
+
+To initialize an existing directory as git directory and then commit it to server:
+cd existing_folder
+git init
+git remote add origin http://git-server/akaouris/example.git
+git add -A
+git commit -m "your comment"
+git push -u origin master
+
+
+
