@@ -3,7 +3,10 @@
 You may use ZRAM for swap on compressed RAM portion or to mount a partition on compressed RAM.
 Swap on zram can improve performance and reduce disk IO wearout (useful for embedded systems). 
 
-Example script and systemd  service file follow below. You may amend the script to fit your needs (size, compression. etc):
+Example script and systemd service file follow below. 
+As an example, the script that manages the zram setup will restore and backup the mysql data to/from the zram partition back to/from the disk. 
+Watchout though, since this approach may render your DB currupt in case of abrupt power losses. 
+You may amend the script to fit your needs (size, compression. etc):
 
 cat /usr/local/bin/zram-mysql
 #!/bin/bash
