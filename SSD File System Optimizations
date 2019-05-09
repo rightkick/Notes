@@ -2,25 +2,22 @@
 
 - mount file systems with option 'noatime'
 
-`UUID=ac22bf86-01f1-4cd2-af41-fd211827d26b /               ext4    noatime,errors=remount-ro 0       1`
-
+UUID=ac22bf86-01f1-4cd2-af41-fd211827d26b /               ext4    noatime,errors=remount-ro 0       1
 
 - Enable scheduled trimming:
-check if TRIM is supported:  `hdparm -I /dev/sda | grep TRIM`
+check if TRIM is supported:  hdparm -I /dev/sda | grep TRIM
 
 Setup periodic TRIM to supported file systems:
-```
 cp /usr/share/doc/util-linux/examples/fstrim.service /etc/systemd/system
 cp /usr/share/doc/util-linux/examples/fstrim.timer /etc/systemd/system
 systemctl daemon-reload
 systemctl enable fstrim.timer
-```
+
 You can set alternatively the following schedules job, in case you do not have systemd:
 
-`nano /etc/cron.weekly/fstrim`
+nano /etc/cron.weekly/fstrim
 
-```
 #!/bin/sh
 # trim all mounted file systems which support it
 /sbin/fstrim --all || true
-```
+
