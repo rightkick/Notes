@@ -1,0 +1,17 @@
+Print the first row from match:
+
+awk 'NR==1{print $1}' /etc/*release
+
+
+Print last field of every row:
+
+awk '{ print $NF }' input.txt
+
+Awk ignore lines starting with spaces:
+awk '!/^(;|#)/{print$2}' file.txt
+
+Print the state of network interfaces: 
+ip link | awk '/state/ { for (x=1;x<=NF;x++) if ($x~"state") print $2,$(x+1) }'
+
+Sum the last items of each row: 
+cat file | awk -F, '{sum += $NF} END {print sum}'
