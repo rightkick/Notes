@@ -55,7 +55,7 @@ case "$1" in
         ;;
 esac
 
-root@debian9:~# cat /etc/systemd/system/zram-mysql.service
+cat /etc/systemd/system/zram-mysql.service
 [Unit]
 Description=zram-mysql
 ConditionPathExists=/var/lib/mysql.tgz
