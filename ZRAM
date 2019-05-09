@@ -1,9 +1,10 @@
 ## ZRAM
-You may use ZRAM for swap on compressed RAM portion or to mount a partition on cpmpressed RAM: 
+
+You may use ZRAM for swap on compressed RAM portion or to mount a partition on compressed RAM.
+Swap on zram can improve performance and reduce disk IO wearout (useful for embedded systems). 
 
 Example script and systemd  service file follow below. You may amend the script to fit your needs (size, compression. etc):
 
-```
 cat /usr/local/bin/zram-mysql
 #!/bin/bash
 
@@ -75,22 +76,15 @@ SysVStartPriority=99
 [Install]
 WantedBy=multi-user.target
 
-
-
-```
-
 ## Useful commands:
-`systemctl list-dependencies --after local-fs.target`
-`mkswap --label 'zram swap parition' /dev/zram0`
-`swapon --priority 10 /dev/zram0`
-`systemctl daemon-reload`
+systemctl list-dependencies --after local-fs.target
+mkswap --label 'zram swap parition' /dev/zram0
+swapon --priority 10 /dev/zram0
+systemctl daemon-reload
 
 
 ## Useful Links:
 https://www.digitalocean.com/community/tutorials/how-to-configure-periodic-trim-for-ssd-storage-on-linux-servers
-
 https://www.kernel.org/doc/Documentation/blockdev/zram.txt
-
 https://www.shellhacks.com/systemd-service-file-example/
-
 https://docs.observium.org/persistent_ramdisk/
