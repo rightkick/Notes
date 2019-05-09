@@ -1,0 +1,31 @@
+6OSSEC
+Suricata
+Squid with clamav
+Security Onion
+Nessus
+Bro
+Snort
+Aanval
+Password aging (chage)
+Disable root account
+
+Avoid using setuid programs
+You may disable setuid programs on filesystem level, with nosuid flag on mount.
+To locate setuid programs run:
+find / user root -perm 4000
+
+Hardening Linux:
+1. Use password on grub
+2. Disable unnecessary services from startup
+3. Enable process accounting
+4. Set resource limits with PAM or ulimit
+5. Frequently update packages
+6. Remove or restrict access to devel tools
+7. Harden kernel with patches (openwall, grsecurity, lids)
+8. File system security: umask, setuid, setguid, fstab
+Use also checksecurity tool for Debian
+Find and remove unowned files
+Amend kernel capabilities with lcap tool
+Monitor file integrity with Tripwire
+
+Additional security tools: Bastille, Titan, dsniff, ethercap, SARA
