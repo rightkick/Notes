@@ -86,6 +86,93 @@ swapon --priority 10 /dev/zram0
 systemctl daemon-reload
 
 
+
+### Swap on zram: 
+
+Systemd script: `/etc/systemd/system/zram.service`
+```
+[Unit]
+Description=zram swap
+
+Requires=local-fs.target
+After=local-fs.target
+
+[Service]
+Type=forking
+ExecStart=/usr/local/bin/zram start
+ExecStop=/usr/local/bin/zram stop
+TimeoutSec=0
+StandardOutput=tty
+RemainAfterExit=yes
+SysVStartPriority=99
+
+[Install]
+WantedBy=multi-user.target 
+
+```
+
+ZRAM script: `/usr/local/bin/zram`
+```
+#!/bin/bash
+###########################
+# Author: A. Kaouris
+# Revision Date: 09/05/2019
+###########################
+
+# Path
+PATH="/bin:/sbin:/usr/bin:/usr/sbin"
+
+# Sizing
+FRACTION=75
+MEMORY=$(perl -ne '/^MemTotal:\s+(\d+)/ && print $1*1024' < /proc/meminfo)
+CPUS=$(nproc)
+SIZE=$((MEMORY * FRACTION / 100 / CPUS))
+MEMLIMIT=$((SIZE * 2))
+# Compression: lzo or lz4
+COMP=lz4
+
+case "$1" in
+    start)
+        param=$(modinfo zram | grep num_devices | cut -f2 -d: | tr -d ' ')
+        modprobe zram $param=$CPUS
+
+        for n in $(seq $CPUS)
+        do
+            i=$((n - 1))
+            echo $COMP > /sys/block/zram$i/comp_algorithm
+            echo $SIZE > /sys/block/zram$i/disksize
+            echo $MEMLIMIT > /sys/block/zram$i/mem_limit
+            mkswap /dev/zram$i
+            swapon /dev/zram$i --priority 10
+        done
+        ;;
+    stop)
+        for n in $(seq $CPUS)
+        do
+            i=$((n - 1))
+            swapoff /dev/zram$i && echo "zram: disabled disk $n of $CPUS" &
+        done
+        wait
+        sleep .5
+        modprobe --remove zram
+        ;;
+    *)
+        echo "Usage: $(basename $0) (start | stop)"
+        exit 1
+        ;;
+esac
+
+exit 0
+```
+Enable the service: 
+```
+chmod +x /usr/local/bin/zram
+systemctl daemon-reload
+systemctl enable zram
+systemctl start zram
+systemctl status zram
+```
+
 ## Useful Links:
 https://www.digitalocean.com/community/tutorials/how-to-configure-periodic-trim-for-ssd-storage-on-linux-servers
 https://www.kernel.org/doc/Documentation/blockdev/zram.txt
