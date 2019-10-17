@@ -1,0 +1,220 @@
+# Setup ovirt 4.3 from scratch
+This is a test environment with ovirt hosts are VMs. Power management is configured for VMs. 
+The example below assumes that gluster will be setup on dev/vda. Your environment may vary. 
+
+## Partitioning: 
+
+```
+engine: 65 GB -> xfs mounted at /gluster/engine
+vms: 80 GB -> xfs mounted at /gluster/vms
+iso: 10 GB -> xfs mounted at /gluster/iso
+samba: 10 GB -> ext4 mounted at /gluster/samba
+
+pvcreate /dev/vda1 -y -f
+vgcreate gluster /dev/vda1 -y
+
+lvcreate -n engine -L 65g gluster --yes 
+lvcreate -n vms -L 80g gluster --yes 
+lvcreate -n iso -L 10g cl --yes 
+lvcreate -n samba -L 10g cl --yes 
+
+mkfs.xfs -i size=512 -n size=8192 /dev/gluster/engine 
+mkfs.xfs -i size=512 -n size=8192 /dev/gluster/vms 
+mkfs.xfs -i size=512 -n size=8192 /dev/cl/iso 
+mkfs.ext4 /dev/cl/samba 
+
+fstab: 
+/dev/mapper/gluster-engine /gluster/engine                xfs     defaults        0 0 
+/dev/mapper/gluster-vms /gluster/vms                xfs     defaults        0 0 
+/dev/mapper/cl-samba /gluster/samba                ext4     rw,noexec        0 0 
+/dev/mapper/cl-iso /gluster/iso                xfs     defaults        0 0 
+
+mkdir -p /gluster/{engine,vms,iso,samba}
+mount -a
+mkdir -p /gluster/{engine,vms,iso,samba}/brick
+```
+
+## Networking: 
+```
+[root@v1 ~]# cat /etc/hosts
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+172.17.0.50	v0.site.lab	v0
+172.17.0.51	v1.site.lab	v1
+
+10.0.0.1        node0
+10.0.0.2        node1
+```
+
+## Installing ovirt packages at each host
+
+```
+yum install -y http://resources.ovirt.org/pub/yum-repo/ovirt-release43.rpm
+yum update -y
+yum install -y cockpit gdeploy cockpit-ovirt-dashboard.noarch  ovirt-engine-appliance screen glusterfs-server vdsm-gluster system-storage-manager samba samba-common samba-winbind-clients
+systemctl enable glusterd
+systemctl start cockpit
+systemctl enable --now cockpit.socket
+reboot
+```
+
+
+## Tweak glusterfs: 
+Add at `/etc/glusterfs/glusterd.vol` of each host: 
+
+```
+option rpc-auth-allow-insecure on
+systemctl restart glusterd
+```
+
+
+## Setup firewall
+```
+systemctl enable firewalld
+systemctl start firewalld
+firewall-cmd --permanent --add-port=24007/tcp
+firewall-cmd --permanent --add-port=24008/tcp
+firewall-cmd --permanent --add-port=24009/tcp
+firewall-cmd --permanent --add-port=49152/tcp
+firewall-cmd --permanent --add-port=38465-38467/tcp
+firewall-cmd --permanent --zone=public --add-rich-rule='  rule family="ipv4"  source address="10.0.0.0/24" accept'
+firewall-cmd --reload
+firewall-cmd --runtime-to-permanent
+```
+
+## Attach peer
+`gluster peer probe node1`
+
+## vms gluster volume
+
+```
+gluster volume create vms replica 2 node0:/gluster/vms/brick/ node1:/gluster/vms/brick/
+gluster volume set vms group virt 
+gluster volume set vms storage.owner-uid 36 
+gluster volume set vms storage.owner-gid 36 
+gluster volume set vms network.ping-timeout 30 
+gluster volume set vms performance.strict-o-direct on 
+gluster volume set vms server.allow-insecure on
+gluster volume set vms features.shard-block-size 512MB
+gluster volume set vms cluster.server-quorum-type none 
+gluster volume set vms cluster.quorum-type fixed 
+gluster volume set vms cluster.quorum-count 1 
+gluster volume start vms
+```
+
+## engine gluster volume
+
+```
+gluster volume create engine replica 2 node0:/gluster/engine/brick node1:/gluster/engine/brick
+gluster volume set engine group virt 
+gluster volume set engine storage.owner-uid 36 
+gluster volume set engine storage.owner-gid 36 
+gluster volume set engine network.ping-timeout 30 
+gluster volume set engine performance.strict-o-direct on 
+gluster volume set engine server.allow-insecure on
+gluster volume set engine features.shard-block-size 512MB
+gluster volume set engine cluster.server-quorum-type none 
+gluster volume set engine cluster.quorum-type fixed 
+gluster volume set engine cluster.quorum-count 1 
+gluster volume start engine
+```
+
+## samba gluster volume
+
+```
+gluster volume create samba replica 2 node0:/gluster/samba/brick/ node1:/gluster/samba/brick/
+gluster volume set samba group virt 
+gluster volume set samba storage.owner-uid 36 
+gluster volume set samba storage.owner-gid 36 
+gluster volume set samba network.ping-timeout 30 
+gluster volume set samba performance.strict-o-direct on 
+gluster volume set samba server.allow-insecure on
+gluster volume set samba cluster.server-quorum-type none 
+gluster volume set samba cluster.quorum-type fixed 
+gluster volume set samba cluster.quorum-count 1 
+gluster volume start samba
+```
+
+## ISO domain: 
+
+```
+gluster volume create iso replica 2 node0:/gluster/iso/brick/ node1:/gluster/iso/brick/
+gluster volume set iso group virt 
+gluster volume set iso storage.owner-uid 36 
+gluster volume set iso storage.owner-gid 36 
+gluster volume set iso network.ping-timeout 30 
+gluster volume set iso performance.strict-o-direct on 
+gluster volume set iso server.allow-insecure on
+gluster volume set iso cluster.server-quorum-type none 
+gluster volume set iso cluster.quorum-type fixed 
+gluster volume set iso cluster.quorum-count 1 
+gluster volume start iso
+```
+
+## Prepare storage configuration file /root/storage.conf: 
+```
+[environment:default] 
+OVEHOSTED_STORAGE/storageDomainConnection=str:10.0.0.1:/engine 
+OVEHOSTED_STORAGE/mntOptions=str:backup-volfile-servers=10.0.0.2
+```
+
+## Deploy engine
+You can deploy from GUI, selecting "Deploy HE in storage that has been already provisioned". 
+It will run under the hood the same ansible roles. 
+
+Otherwise you can go command line: 
+`hosted-engine --deploy --config-append=/root/storage.conf --generate-answer=/root/answers.conf`
+
+Answers: 
+
+```
+Please enter the name of the datacenter where you want to deploy this hosted-engine host. [Default]: IntelligentVessel 
+Please enter the name of the cluster where you want to deploy this hosted-engine host. [Default]: IntelligentVessel
+Please specify the memory size of the VM in MB (Defaults to maximum available): [10934]: 10240
+Engine VM FQDN:  []: engine.site.lab
+Engine VM domain: [site.lab]
+Enter root password that will be used for the engine appliance:
+How should the engine VM network be configured (DHCP, Static)[DHCP]? Static
+Please enter the IP address to be used for the engine VM []: 172.17.0.52
+Add lines for the appliance itself and for this host to /etc/hosts on the engine VM?
+Note: ensuring that this host could resolve the engine VM hostname is still up to you
+(Yes, No)[No] Yes
+Enter engine admin password:
+```
+
+## Update /etc/hosts of engine as below: 
+```
+172.17.0.50	v0.site.lab	v0
+172.17.0.51	v1.site.lab	v1
+172.17.0.52	engine.site.lab	engine
+```
+
+## Attach storage domains from GUI
+ use `backup-volfile-servers=10.0.0.2` as option
+
+## Install guest agents in Windows
+
+## Configure SAMBA
+
+## Configure engine backups
+
+## Configure libvirt auth: 
+
+`saslpasswd2 -a libvirt root`
+
+Create auth.conf on all hosts: 
+
+```
+cat <<EOF> /etc/libvirt/auth.conf
+[credentials-root]
+authname=root
+password=s3t3l_supp0rt
+[auth-libvirt-v0]
+credentials=root
+[auth-libvirt-v1]
+credentials=root
+[auth-libvirt-default]
+credentials=root
+EOF
+```
