@@ -218,3 +218,41 @@ credentials=root
 credentials=root
 EOF
 ```
+
+# Setup power management for VMs: 
+at hardware host install: 
+```
+yum install python-pip -y
+yum install -y zeromq-devel
+yum install -y gcc python-devel libvirt-devel
+firewall-cmd --permanent --zone=public --add-port=623-624/udp
+firewall-cmd --reload
+vbmc add CentOS7-ovirt0 --username root --password s3t3l_supp0rt --port 623
+vbmc add CentOS7-ovirt1 --username root --password s3t3l_supp0rt --port 624
+
+[root@baremetal ~]# vbmc list
++----------------+--------+---------+------+
+| Domain name    | Status | Address | Port |
++----------------+--------+---------+------+
+| CentOS7-ovirt0 | down   | ::      |  623 |
+| CentOS7-ovirt1 | down   | ::      |  624 |
++----------------+--------+---------+------+
+
+[root@v2 ~]# vbmc start CentOS7-ovirt0
+2019-10-16 18:44:57,397.397 26596 INFO VirtualBMC [-] Started vBMC instance for domain CentOS7-ovirt0
+[root@v2 ~]# vbmc start CentOS7-ovirt1
+2019-10-16 18:45:38,056.056 26596 INFO VirtualBMC [-] Started vBMC instance for domain CentOS7-ovirt1
+[root@v2 ~]# vbmc list
++----------------+---------+---------+------+
+| Domain name    | Status  | Address | Port |
++----------------+---------+---------+------+
+| CentOS7-ovirt0 | running | ::      |  623 |
+| CentOS7-ovirt1 | running | ::      |  624 |
++----------------+---------+---------+------+
+
+at node0 host (VM) check: 
+ipmitool -I lanplus -U root -P s3t3l_supp0rt -H <hardware host IP> power status (default port is 623)
+ipmitool -I lanplus -U root -P s3t3l_supp0rt -H <hardware host IP> power status -p 624
+
+at ovirt GUI you need lanplus=1,-p623 and lanplus=1,-p624 options for each host. 
+```
