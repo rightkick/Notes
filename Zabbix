@@ -1,0 +1,111 @@
+# Steps to compile Zabbix and rebrand it. 
+# We assume here Zabbix will be renamed to Smartwatch
+
+## Get tarball and untar
+zabbix-4.2.1.tar.gz
+
+
+## Install dependencies: 
+apt update
+apt upgrade
+apt install apache2 mysql-server mysql-client mailutils postfix snmpd dnsutils bison fping flex curl sox git subversion libmariadb2 sudo ipmitool perl libnet-ssleay-perl  libauthen-pam-perl libio-pty-perl python libsnmp-perl libevent-2.0-5 libapache2-mod-php7.0 php7.0 php-xml php-bcmath php-mbstring php-ldap php-gd php-mysql -y
+
+
+## Add user
+addgroup --system --quiet smartwatch
+adduser --quiet --system --disabled-login --ingroup smartwatch --home /var/lib/smartwatch --no-create-home smartwatch
+
+
+## Compile and install: 
+
+sed -i "s/zabbix_server.conf/smartwatch_server.conf/g" configure
+sed -i "s/zabbix_proxy.conf/smartwatch_proxy.conf/g" configure
+sed -i "s/zabbix_agentd.conf/smartwatch_agentd.conf/g" configure
+
+./configure --prefix=/usr --enable-server --enable-agent --with-mysql --with-net-snmp --with-libcurl --with-libxml2 --sysconfdir=/etc/smartwatch --enable-proxy --program-transform-name='s/zabbix/smartwatch/;'
+
+make install
+
+
+## Prepare directories; 
+mkdir /etc/smartwatch/
+mkdir /var/lib/smartwatch/
+mkdir /var/log/smartwatch/
+mkdir -p /etc/smartwatch/smartwatch_agentd.d/
+chown -R smartwatch:smartwatch /var/log/smartwatch/
+chown -R smartwatch:smartwatch /var/lib/smartwatch/
+
+touch /var/log/smartwatch/smartwatch_agentd.log
+touch /var/log/smartwatch/smartwatch_server.log
+touch /var/log/smartwatch/smartwatch_proxy.log
+chmod 777 /var/log/smartwatch/smartwatch_agentd.log
+chmod 777 /var/log/smartwatch/smartwatch_server.log
+chmod 777 /var/log/smartwatch/smartwatch_proxy.log
+
+
+## Copy configs: 
+cp config/smartwatch_server.conf /etc/smartwatch/
+cp config/smartwatch_proxy.conf /etc/smartwatch/
+cp config/smartwatch_agentd.conf /etc/smartwatch/
+
+cp config/init.d/smartwatch-agent /etc/init.d/
+cp config/init.d/smartwatch-server /etc/init.d/
+cp config/init.d/smartwatch-proxy /etc/init.d/
+systemctl daemon-reload
+
+## Prepare DB: 
+create database smartwatch character set utf8 collate utf8_bin;
+grant all privileges on smartwatch.* to smartwatch@localhost identified by 'smartwatchpass';
+
+
+## Create smartwatch proxy DB
+create database smartwatch_proxy character set utf8 collate utf8_bin; 
+grant all privileges on smartwatch_proxy.* to smartwatch@localhost identified by 'smartwatchpass'; 
+
+cd database/mysql
+mysql -usmartwatch -psmartwatchpass smartwatch < schema.sql
+mysql -usmartwatch -psmartwatchpass smartwatch_proxy < schema.sql
+mysql -usmartwatch -psmartwatchpass smartwatch < images.sql
+mysql -usmartwatch -psmartwatchpass smartwatch < data.sql
+
+
+## Configure visudo: 
+# smartwatch permissions
+smartwatch	ALL=(ALL)       NOPASSWD: ALL
+
+
+## Installing smartwatch web interface
+Rebrand Web GUI: 
+
+mkdir /var/www/smartwatch
+cd frontends/php/
+grep -Ir zabbix * | awk -F: '{print$1}' | uniq | xargs sed -i "s/zabbix/smartwatch/g"
+grep -Ir Zabbix * | awk -F: '{print$1}' | uniq | xargs sed -i "s/Zabbix/Smartwatch/g"
+grep -Ir ZABBIX * | awk -F: '{print$1}' | uniq | xargs sed -i "s/ZABBIX/SMARTWATCH/g"
+grep -Ir "Smartwatch SIA" * | awk -F: '{print$1}' | uniq | xargs sed -i "s/Smartwatch SIA/SetelHellas/g"
+grep -Ir "www.smartwatch" * | awk -F: '{print$1}' | uniq | xargs sed -i "s/www.smartwatch/www.setel-group/g"
+find . -name "*zabbix*" | sed -e "p;s/zabbix/smartwatch/" | xargs -n2 mv
+find . -name "*Zabbix*" | sed -e "p;s/Zabbix/Smartwatch/" | xargs -n2 mv
+
+
+cp -a . /var/www/smartwatch/
+chown -R www-data:www-data /var/www/smartwatch
+
+## Configure apache: upload apache config and php.ini config file: 
+cp smartwatch.conf /etc/apache2/sites-available/smartwatch.conf
+a2ensite smartwatch
+
+cp php.ini /etc/php/7.0/apache2/php.ini
+
+service apache2 restart
+
+## Setup SmartWATCH: run the setup from web GUI: 
+http://IP/smartwatch
+
+Upon completion login with default password: Admin/zabbix
+Change password. 
+
+Change the following within GUI: (replace Zabbix with Smartwatch)
+- hostgroup name
+- Users descriptions
+- Template names
