@@ -227,8 +227,8 @@ yum install -y zeromq-devel
 yum install -y gcc python-devel libvirt-devel
 firewall-cmd --permanent --zone=public --add-port=623-624/udp
 firewall-cmd --reload
-vbmc add CentOS7-ovirt0 --username root --password s3t3l_supp0rt --port 623
-vbmc add CentOS7-ovirt1 --username root --password s3t3l_supp0rt --port 624
+vbmc add CentOS7-ovirt0 --username root --password login --port 623
+vbmc add CentOS7-ovirt1 --username root --password login --port 624
 
 [root@baremetal ~]# vbmc list
 +----------------+--------+---------+------+
