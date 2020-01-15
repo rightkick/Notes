@@ -227,8 +227,8 @@ yum install -y zeromq-devel
 yum install -y gcc python-devel libvirt-devel
 firewall-cmd --permanent --zone=public --add-port=623-624/udp
 firewall-cmd --reload
-vbmc add CentOS7-ovirt0 --username root --password login --port 623
-vbmc add CentOS7-ovirt1 --username root --password login --port 624
+vbmc add CentOS7-ovirt0 --username root --password yourpass --port 623
+vbmc add CentOS7-ovirt1 --username root --password yourpass --port 624
 
 [root@baremetal ~]# vbmc list
 +----------------+--------+---------+------+
@@ -251,8 +251,8 @@ vbmc add CentOS7-ovirt1 --username root --password login --port 624
 +----------------+---------+---------+------+
 
 at node0 host (VM) check: 
-ipmitool -I lanplus -U root -P s3t3l_supp0rt -H <hardware host IP> power status (default port is 623)
-ipmitool -I lanplus -U root -P s3t3l_supp0rt -H <hardware host IP> power status -p 624
+ipmitool -I lanplus -U root -P yourpass -H <hardware host IP> power status (default port is 623)
+ipmitool -I lanplus -U root -P yourpass -H <hardware host IP> power status -p 624
 
 at ovirt GUI you need lanplus=1,-p623 and lanplus=1,-p624 options for each host. 
 ```
