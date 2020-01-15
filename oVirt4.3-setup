@@ -1,6 +1,6 @@
 # Setup ovirt 4.3 from scratch
 This is a test environment with ovirt hosts are VMs. Power management is configured for VMs. 
-The example below assumes that gluster will be setup on dev/vda. Your environment may vary. 
+The example below assumes that gluster will be setup on /dev/vda. Your environment may vary. 
 
 ## Partitioning: 
 
