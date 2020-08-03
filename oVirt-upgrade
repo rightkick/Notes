@@ -1,0 +1,205 @@
+## Ovirt procedure for minor upgrade: 
+
+1. Enable global maintenance mode:
+hosted-engine --set-maintenance --mode=global
+
+2. At engine:
+```
+engine-upgrade-check
+yum update "ovirt-*-setup*"
+engine-setup
+yum update
+```
+
+3. Disable global maintenance:
+hosted-engine --set-maintenance --mode=none
+
+4. Update each host by putting it on maintenance mode. You may need to shutdown some VMs if not all of them can be migrated to alternate host. Then click on host -> Installation -> Upgrade. After upgrade is reported as completed from dashboard, confirm all packages are updated with: yum update  After completion of host update reboot host and then activate it from dashboard: reboot, host -> activate
+
+
+### Notes
+- Important: The update process may take some time; allow time for the update process to complete and do not stop the process once initiated.
+- If the upgrade fails, the engine-setup command attempts to roll your oVirt Engine installation back to its previous state. For this reason, the previous version’s repositories must not be removed until after the upgrade is complete. If the upgrade fails, detailed instructions display that explain how to restore your installation.
+
+### Resolving dependency issues during installation or upgrades:
+In case you face package dependency issues, due to missing repos, then you may switch your repos to point to the archived ones, depending on the version of CentOS and oVirt you are currently running. For example, ovirt 4.2 does work with CentOS up until 7.6 as it will not install on centos 7.7 and greater due to dependency issues. In order to resolve it you need to freeze the base repo to point to the specific centos repo at vault.centos.org. Example:
+
+cat /etc/yum.repos.d/etc/centos-release
+
+CentOS Linux release 7.6.1810 (Core)
+
+The content of the base repo is updated as below:
+cat CentOS-Base.repo
+
+```
+# CentOS-Base.repo
+#
+# The mirror system uses the connecting IP address of the client and the
+# update status of each mirror to pick mirrors that are updated to and
+# geographically close to the client.  You should use this for CentOS updates
+# unless you are manually picking other mirrors.
+#
+# remarked out baseurl= line instead.
+#
+#
+[base]
+name=CentOS-7.6.1810 - Base
+baseurl=http://vault.centos.org/7.6.1810/os/$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+#released updates
+[updates]
+name=CentOS-7.6.1810 - Updates
+baseurl=http://vault.centos.org/7.6.1810/updates/$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+#additional packages that may be useful
+[extras]
+name=CentOS-7.6.1810 - Extras
+baseurl=http://vault.centos.org/7.6.1810/extras/$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+#additional packages that extend functionality of existing packages
+[centosplus]
+name=CentOS-7.6.1810 - Plus
+baseurl=http://vault.centos.org/7.6.1810/centosplus/$basearch/
+gpgcheck=1
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+```
+
+The above is easily done with the following sed command: 
+
+```
+cd /etc/yum.repos.d/
+cp CentOS-Base.repo /root/CentOS-Base.repo.bak
+sed -e '/mirrorlist=.*/d' \
+    -e 's/#baseurl=/baseurl=/' \
+    -e "s/\$releasever/7.6.1810/g" \
+    -e "s/mirror.centos.org\\/centos/vault.centos.org/g" \
+    -i /etc/yum.repos.d/CentOS-Base.repo
+```
+
+Then you need to point ovirt-4.2-dependencies.repo to vault.centos.org:
+
+cat ovirt-4.2-dependencies.repo
+
+```
+[ovirt-4.2-epel]
+name=Extra Packages for Enterprise Linux 7 - $basearch
+baseurl=http://download.fedoraproject.org/pub/epel/7/$basearch
+#mirrorlist=https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch
+failovermethod=priority
+enabled=1
+includepkgs=
+ ansible,
+ ansible-doc,
+ epel-release,
+ facter,
+ hiera,
+ libtomcrypt,
+ libtommath,
+ nbdkit,
+ nbdkit-devel,
+ nbdkit-plugin-python2,
+ nbdkit-plugin-python-common,
+ nbdkit-plugin-vddk,
+ ovirt-guest-agent*,
+ puppet,
+ python2-crypto,
+ python2-ecdsa,
+ python-ordereddict,
+ ruby-augeas,
+ rubygem-rgen,
+ ruby-shadow
+
+gpgcheck=1
+gpgkey=https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
+
+[ovirt-4.2-centos-gluster312]
+name=CentOS-7.6.1810 - Gluster 3.12
+baseurl=http://vault.centos.org/centos/7.6.1810/storage/$basearch/gluster-3.12/
+gpgcheck=1
+enabled=1
+gpgkey=https://raw.githubusercontent.com/CentOS-Storage-SIG/centos-release-storage-common/master/RPM-GPG-KEY-CentOS-SIG-Storage
+
+[ovirt-4.2-virtio-win-latest]
+name=virtio-win builds roughly matching what will be shipped in upcoming RHEL
+baseurl=http://fedorapeople.org/groups/virt/virtio-win/repo/latest
+enabled=1
+skip_if_unavailable=1
+gpgcheck=0
+
+[ovirt-4.2-centos-qemu-ev]
+name=CentOS-7.6.1810 - QEMU EV
+baseurl=http://vault.centos.org/centos/7.6.1810/virt/$basearch/kvm-common/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.centos.org/keys/RPM-GPG-KEY-CentOS-SIG-Virtualization
+
+[ovirt-4.2-centos-opstools]
+name=CentOS-7.6.1810 - OpsTools - release
+baseurl=http://vault.centos.org/centos/7.6.1810/opstools/$basearch/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.centos.org/keys/RPM-GPG-KEY-CentOS-SIG-OpsTools
+
+[centos-sclo-rh-release]
+name=CentOS-7.6.1810 - SCLo rh
+baseurl=http://vault.centos.org/centos/7.6.1810/sclo/$basearch/rh/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.centos.org/keys/RPM-GPG-KEY-CentOS-SIG-SCLo
+
+[ovirt-4.2-centos-ovirt42]
+name=CentOS-7.6.1810 - oVirt 4.2
+baseurl=http://vault.centos.org/centos/7.6.1810/virt/$basearch/ovirt-4.2/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.centos.org/keys/RPM-GPG-KEY-CentOS-SIG-Virtualization
+```
+
+Note. When installing ovirt on 7.6.1810 I had to downgrade ansible to 2.7, as ovirt deploy is not compatible with ansible 2.8 and above. The downgrade is done easily with:
+
+```
+yum --showduplicates list ansible
+yum downgrade ansible-2.7.10-1.el7
+```
+
+## Ovirt procedure for major upgrade
+1. update DC to latest minor version (engine + nodes)
+
+2. enable global maintenance: hosted-engine --set-maintenance --mode=global
+
+3. at engine: install major version repo: yum install https://resources.ovirt.org/pub/yum-repo/ovirt-release4x.rpm
+
+4. at engine: 
+```
+engine-upgrade-check
+yum update "ovirt-*-setup*"
+engine-setup
+```
+
+7. if the upgrade is successful, at engine: remove the old ovirt release from /etc/yum.repos.d
+
+8. at engine: yum update
+
+9. after completion of engine upgrade disable global maintenance
+hosted-engine --set-maintenance --mode=none
+
+10. verify engine version from GUI
+
+11. update each host/node: update to minor, then install new repo, remove old repo, yum update, reboot, activate
+
+12. after completion of updates: set DC and cluster compatibility level to latest version 4.x. 
+
+13. shutdown guest VMs and confirm they start up again. (you may need to disable guest disk leases or re-activate guest disks)
+
+14. check events for any issues and fix accordingly
+
+### Notes
+- After updating a cluster’s compatibility version, you must update the cluster compatibility version of all running or suspended virtual machines by rebooting them from the Administration Portal
+- During the engine upgrade, if the upgrade fails, the engine-setup command attempts to roll your oVirt Engine installation back to its previous state. For this reason, the previous version’s repositories must not be removed until after the upgrade is complete
