@@ -58,6 +58,15 @@ Brick gluster2:/gluster/engine/brick
 Status: Connected
 Number of entries: 0
 
+### Performance tweaks that have a nice boost: 
+gluster volume set vms remote-dio enable
+gluster volume set vms performance.write-behind-window-size 8MB
+gluster volume set vms performance.cache-size 1GB
+gluster volume set vms performance.io-thread-count 16
+gluster volume set vms performance.readdir-ahead on
+gluster volume set vms client.event-threads 8
+gluster volume set vms server.event-threads 8
+gluster volume set engine features.shard-block-size 512MB
 
 Useful link:
 https://support.rackspace.com/how-to/glusterfs-troubleshooting/
