@@ -53,6 +53,8 @@ chmod +x vars
 ```
 ./easyrsa init-pki
 ./easyrsa build-ca (define a password)
+OR ./easyrsa build-ca nopass (without a password protection)
+
 ```
 
 CA creation complete and you may now import and sign cert requests.
