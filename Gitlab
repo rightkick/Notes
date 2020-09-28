@@ -1,0 +1,79 @@
+# Gitlab server
+hostname: git.example.com
+
+
+# HTTPS configuration:
+# Generate cert
+openssl genrsa -out "/etc/gitlab/ssl/git.example.com.key" 2048
+openssl req -new -key "/etc/gitlab/ssl/git.example.com.key" -out "/etc/gitlab/ssl/git.example.com.csr"
+openssl x509 -req -days 3650 -in "//etc/gitlab/ssl/git.example.com.csr" -signkey "/etc/gitlab/ssl/git.example.com.key"  -out "/etc/gitlab/ssl/git.example.com.crt"
+
+# Configure gitlab:
+nano /etc/gitlab/gitlab.rb
+
+external_url 'https://git.example.com'
+nginx['enable'] = true
+nginx['redirect_http_to_https'] = true
+nginx['ssl_certificate'] = "/etc/gitlab/ssl/#{node['fqdn']}.crt"
+nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/#{node['fqdn']}.key"
+nginx['ssl_ciphers'] = "ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256"
+nginx['ssl_protocols'] = "TLSv1 TLSv1.1 TLSv1.2"
+
+# Configure external object store pointing at MiniIO at FreeNAS:
+## looal LFS storage option:
+git_data_dirs({"default" => { "path" => "/data/gitlab" }})
+gitlab_rails['lfs_storage_path'] = "/data/lfs-objects"
+
+# LFS to external object store: MinIO at Freenas
+gitlab_rails['lfs_enabled'] = true
+gitlab_rails['lfs_object_store_enabled'] = true
+gitlab_rails['lfs_object_store_direct_upload'] = true
+gitlab_rails['lfs_object_store_remote_directory'] = "lfs-objects"
+gitlab_rails['lfs_object_store_connection'] = {
+   'provider' => 'AWS',
+   'region' => 'eu-west-1',
+   'aws_access_key_id' => 'mykeyid',
+   'aws_secret_access_key' => 'myaccesssecretkey',
+   'aws_signature_version' => 4,
+   'host' => 'nas0.example.com',
+   'endpoint' => "https://nas0.example.com:9000",
+   'path_style' => true
+}
+
+gitlab_workhorse['env'] = {
+  'SSL_CERT_DIR' => '/etc/gitlab/trusted-certs'
+}
+
+# Install the self signed certificate of NAS0. At gitlab server run:
+openssl s_client -showcerts -servername nas0.example.com -connect nas0.example.com:9000 > /etc/gitlab/trusted-certs/nas0-cert.pem
+gitlab-ctl reconfigure
+
+# Manually migrate LFS to S3 storage: this will migrate locally stored LFS objects (if any) to external S3 (MiniIO) store:
+gitlab-rake gitlab:lfs:migrate
+
+# Reconfigure gitlab:
+gitlab-ctl reconfigure
+
+# Check status:
+gitlab-ctl status
+
+# Custom repository path
+git_data_dirs({"default" => { "path" => "/data/gitlab" }})
+
+At your PC import self signed cert:
+sudo scp -P 2525 root@git:/etc/gitlab/ssl/git.example.com.crt /usr/local/share/ca-certificates/
+OR: scp -P 2525 support@git:~/git.example.com.crt /usr/local/share/ca-certificates/
+sudo update-ca-certificates
+sudo service docker restart
+
+
+# Container registry:
+Login: docker login git.example.com:5050 -u <username>
+At PC you need:  apt install gnupg2 pass
+
+
+# Manage docker images with gitlab registry:
+docker login git.example.com:5050
+docker tag <image id> git.example.com:5050/group/projectname/<image name>:version
+docker push git.example.com:5050/group/projectname/<image name>:version
+docker pull git.example.com:5050/group/projectname/<image name>:version
