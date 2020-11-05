@@ -1,10 +1,9 @@
-# Setup ovirt 4.3 from scratch
+# Setup ovirt 4.3 from scratch with two (2) nodes
 This is a test environment with ovirt hosts are VMs. Power management is configured for VMs. 
 The example below assumes that gluster will be setup on /dev/vda. Your environment may vary. 
 
 ## Partitioning: 
 
-```
 engine: 65 GB -> xfs mounted at /gluster/engine
 vms: 80 GB -> xfs mounted at /gluster/vms
 iso: 10 GB -> xfs mounted at /gluster/iso
@@ -32,10 +31,8 @@ fstab:
 mkdir -p /gluster/{engine,vms,iso,samba}
 mount -a
 mkdir -p /gluster/{engine,vms,iso,samba}/brick
-```
 
 ## Networking: 
-```
 [root@v1 ~]# cat /etc/hosts
 127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
 ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
@@ -45,11 +42,9 @@ mkdir -p /gluster/{engine,vms,iso,samba}/brick
 
 10.0.0.1        node0
 10.0.0.2        node1
-```
 
 ## Installing ovirt packages at each host
 
-```
 yum install -y http://resources.ovirt.org/pub/yum-repo/ovirt-release43.rpm
 yum update -y
 yum install -y cockpit gdeploy cockpit-ovirt-dashboard.noarch  ovirt-engine-appliance screen glusterfs-server vdsm-gluster system-storage-manager samba samba-common samba-winbind-clients
@@ -57,20 +52,18 @@ systemctl enable glusterd
 systemctl start cockpit
 systemctl enable --now cockpit.socket
 reboot
-```
 
 
 ## Tweak glusterfs: 
 Add at `/etc/glusterfs/glusterd.vol` of each host: 
 
-```
 option rpc-auth-allow-insecure on
+
+Then restart gluster:
 systemctl restart glusterd
-```
 
 
 ## Setup firewall
-```
 systemctl enable firewalld
 systemctl start firewalld
 firewall-cmd --permanent --add-port=24007/tcp
@@ -81,14 +74,11 @@ firewall-cmd --permanent --add-port=38465-38467/tcp
 firewall-cmd --permanent --zone=public --add-rich-rule='  rule family="ipv4"  source address="10.0.0.0/24" accept'
 firewall-cmd --reload
 firewall-cmd --runtime-to-permanent
-```
 
 ## Attach peer
-`gluster peer probe node1`
+gluster peer probe node1
 
 ## vms gluster volume
-
-```
 gluster volume create vms replica 2 node0:/gluster/vms/brick/ node1:/gluster/vms/brick/
 gluster volume set vms group virt 
 gluster volume set vms storage.owner-uid 36 
@@ -101,11 +91,8 @@ gluster volume set vms cluster.server-quorum-type none
 gluster volume set vms cluster.quorum-type fixed 
 gluster volume set vms cluster.quorum-count 1 
 gluster volume start vms
-```
 
 ## engine gluster volume
-
-```
 gluster volume create engine replica 2 node0:/gluster/engine/brick node1:/gluster/engine/brick
 gluster volume set engine group virt 
 gluster volume set engine storage.owner-uid 36 
@@ -118,11 +105,9 @@ gluster volume set engine cluster.server-quorum-type none
 gluster volume set engine cluster.quorum-type fixed 
 gluster volume set engine cluster.quorum-count 1 
 gluster volume start engine
-```
 
 ## samba gluster volume
 
-```
 gluster volume create samba replica 2 node0:/gluster/samba/brick/ node1:/gluster/samba/brick/
 gluster volume set samba group virt 
 gluster volume set samba storage.owner-uid 36 
@@ -134,11 +119,8 @@ gluster volume set samba cluster.server-quorum-type none
 gluster volume set samba cluster.quorum-type fixed 
 gluster volume set samba cluster.quorum-count 1 
 gluster volume start samba
-```
 
 ## ISO domain: 
-
-```
 gluster volume create iso replica 2 node0:/gluster/iso/brick/ node1:/gluster/iso/brick/
 gluster volume set iso group virt 
 gluster volume set iso storage.owner-uid 36 
@@ -150,21 +132,18 @@ gluster volume set iso cluster.server-quorum-type none
 gluster volume set iso cluster.quorum-type fixed 
 gluster volume set iso cluster.quorum-count 1 
 gluster volume start iso
-```
 
 ## Prepare storage configuration file /root/storage.conf: 
-```
 [environment:default] 
 OVEHOSTED_STORAGE/storageDomainConnection=str:10.0.0.1:/engine 
 OVEHOSTED_STORAGE/mntOptions=str:backup-volfile-servers=10.0.0.2
-```
 
 ## Deploy engine
 You can deploy from GUI, selecting "Deploy HE in storage that has been already provisioned". 
 It will run under the hood the same ansible roles. 
 
 Otherwise you can go command line: 
-`hosted-engine --deploy --config-append=/root/storage.conf --generate-answer=/root/answers.conf`
+hosted-engine --deploy --config-append=/root/storage.conf --generate-answer=/root/answers.conf
 
 Answers: 
 
@@ -193,9 +172,7 @@ Enter engine admin password:
 ## Attach storage domains from GUI
  use `backup-volfile-servers=10.0.0.2` as option
 
-## Install guest agents in Windows
-
-## Configure SAMBA
+## Install guest agents in VMs
 
 ## Configure engine backups
 
