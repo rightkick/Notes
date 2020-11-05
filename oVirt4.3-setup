@@ -209,7 +209,7 @@ Create auth.conf on all hosts:
 cat <<EOF> /etc/libvirt/auth.conf
 [credentials-root]
 authname=root
-password=s3t3l_supp0rt
+password=yourpass
 [auth-libvirt-v0]
 credentials=root
 [auth-libvirt-v1]
