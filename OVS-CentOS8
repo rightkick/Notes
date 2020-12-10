@@ -1,0 +1,47 @@
+# Configure OVS bridges for KVM on CentOS8 Stream
+We assume that we have two physcical interfaces, enp7s0f0 for LAN and enp7s0f1 for LAB, and we need to create two OVS bridges. 
+
+## Install packages
+dnf install -y centos-release-openstack-train epel-release
+dnf install -y NetworkManager-ovs openvswitch
+systemctl enable --now openvswitch
+systemctl restart NetworkManager
+
+## Configure LAN bridge
+export NET_DEV="enp7s0f0"
+nmcli conn add type ovs-bridge conn.interface ovs-br0 con-name ovs-br0
+nmcli conn add type ovs-port conn.interface ovs-br0-port0 master ovs-br0 con-name ovs-br0-port0
+nmcli conn add type ovs-interface slave-type ovs-port conn.interface ovs-br0 \
+   master ovs-br0-port0 ipv4.method manual ipv4.address 10.10.10.14/24 con-name ovs-br0-int
+
+nmcli con add type ovs-port conn.interface ovs-br0-port1 master ovs-br0 con-name ovs-br0-port1
+
+nmcli con add type ethernet conn.interface "${NET_DEV}" master ovs-br0-port1 con-name ovs-br0-eth
+
+nmcli con modify ovs-br0 ipv4.method disabled ipv6.method disabled
+nmcli con modify ovs-br0 ipv4.method static ipv4.address 10.10.10.14/24
+nmcli con modify ovs-br0 ipv4.gateway 10.10.10.1
+
+nmcli con down "${NET_DEV}" && \
+nmcli con up ovs-br0-eth && \
+nmcli con up ovs-br0-int;
+systemctl restart NetworkManager
+
+## Configure LAB bridge
+export NET_DEV="enp7s0f1"
+nmcli conn add type ovs-bridge conn.interface ovs-br1 con-name ovs-br1
+nmcli conn add type ovs-port conn.interface ovs-br1-port0 master ovs-br1 con-name ovs-br1-port0
+nmcli conn add type ovs-interface slave-type ovs-port conn.interface ovs-br1 \
+  master ovs-br1-port0 ipv4.method manual ipv4.address 172.16.16.14/24 con-name ovs-br1-int
+
+nmcli con add type ovs-port conn.interface ovs-br1-port1 master ovs-br1 con-name ovs-br1-port1
+nmcli con add type ethernet conn.interface "${NET_DEV}" master ovs-br1-port1 con-name ovs-br1-eth
+
+nmcli con modify ovs-br1 ipv4.method disabled ipv6.method disabled
+nmcli con modify ovs-br1 ipv4.method static ipv4.address 172.16.16.14/24
+
+nmcli con down "${NET_DEV}" && \
+nmcli con up ovs-br1-eth && \
+nmcli con up ovs-br1-int;
+
+```
