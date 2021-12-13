@@ -1,8 +1,14 @@
-#for non running docker, use save:
+# For non running docker, use save:
+```
 docker save <container name> | gzip > mycontainer.tgz
+```
 
-#for running or paused docker, use export:
+# For running or paused docker, use export:
+```
 docker export <image name> | gzip > mycontainer.tgz
+```
 
-#load
+# Load
+```
 gunzip -c mycontainer.tgz | docker load
+```
