@@ -5,7 +5,7 @@ docker save <container name> | gzip > mycontainer.tgz
 
 # For running or paused docker, use export:
 ```
-docker export <image name> | gzip > mycontainer.tgz
+docker export <container name> | gzip > mycontainer.tgz
 ```
 
 # Load
