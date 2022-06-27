@@ -1,4 +1,4 @@
-# Compiling asterisk steps:
+# Compiling asterisk steps (Debian)
 
 # Install dependencies:
 apt-get install libxml2-dev libsqlite3-dev libedit-dev uuid-dev libjansson-dev libspeex-dev libspeexdsp-dev libopus-dev
