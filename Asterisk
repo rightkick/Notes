@@ -1,0 +1,55 @@
+# Compiling asterisk steps:
+
+# Install dependencies:
+apt-get install libxml2-dev libsqlite3-dev libedit-dev uuid-dev libjansson-dev libspeex-dev libspeexdsp-dev libopus-dev
+apt-get purge asterisk
+rm /usr/lib/asterisk/modules/*
+rm -rf /etc/asterisk/*
+cd /usr/src
+
+# Download latest LTS release:
+wget http://downloads.asterisk.org/pub/telephony/asterisk/asterisk-16-current.tar.gz
+tar -zxvf asterisk-16-current.tar.gz
+cd asterisk-16-current
+./configure
+
+# Configure asterisk:
+make menuselect (enable extra sounds)
+
+# Press "s" to save configuration.
+
+# Compile:
+make
+
+# Install
+make install
+
+# Generate sample configs
+make samples
+
+# Generate system files
+make config
+
+## Additional:
+# Install OPUS and G729 codecs (precompiled)
+cd /usr/local/src/
+wget http://downloads.digium.com/pub/telephony/codec_opus/asterisk-16.0/x86-64/codec_opus-16.0_current-x86_64.tar.gz
+# Untar and place it at the modules folder:
+cp codec_opus.so /usr/lib/asterisk/modules
+cp format_ogg_opus.so /usr/lib/asterisk/modules/
+cp codec_opus_config-en_US.xml /var/lib/asterisk/documentation/
+# Restart asterisk and verify that the codecs are listed:
+systemctl restart asterisk
+asterisk -rx 'core show translation'
+
+## Notes
+Note: in case asterisk does not start after compilation, due to hardware issues, you can try to compile it with BUIDL_NATIVE disabled:
+
+make menuselect --disable BUILD_NATIVE menuselect.makeopts
+
+This setting can be changed also at the GUI menuselect tool.
+
+## Additional codecs
+Download precompiled codecs from below links:
+http://downloads.digium.com/pub/telephony/
+http://asterisk.hosting.lv/
