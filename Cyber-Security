@@ -1,0 +1,4 @@
+# Crack a password hashed with bcrypt: 
+1. Download a password list such as rockyou: https://github.com/teamstealthsec/wordlists/blob/master/rockyou.txt.gz
+2. Write your hashes in a file named hash.txt
+3. Crack: hashcat -m 3200 -a 0 hash.txt rockyou.txt
