@@ -10,3 +10,6 @@ $2a$04$NMJc08i8uCi/lDy7sDDm4.r5mRnjz3XpSrv3M4bhtJQMpmHrtIL06
 3. Crack: hashcat -m 3200 -a 0 hash.txt rockyou.txt
 4. You should get the pass per hash as below: 
 $2a$04$NMJc08i8uCi/lDy7sDDm4.r5mRnjz3XpSrv3M4bhtJQMpmHrtIL06:12341234
+
+In case you need to crack a pass encrypted with a different alogirithm (md5, SHA1, or other) then have a look at the supported list: 
+https://hashcat.net/wiki/doku.php?id=example_hashes
