@@ -1,0 +1,30 @@
+## Docker compose for zabbix-proxy with mariadb
+
+version: "3.5"
+
+services: 
+  zabbix-proxy:
+    image: zabbix/zabbix-proxy-mysql:alpine-6.2-latest
+    ports:
+      - 10051:10051
+    networks:
+      - zabbix
+    environment:
+      ZBX_HOSTNAME: zbx_proxy_test
+      MYSQL_ROOT_PASSWORD: <dbrootpwd>
+      DB_SERVER_HOST: db
+      ZBX_PROXYMODE: 0
+      MYSQL_USER: zabbix
+      MYSQL_PASSWORD: <zbxpass>
+    depends_on: 
+      - db
+
+  db:
+    image: mariadb:10.5
+    networks:
+      - zabbix
+    environment:
+      MARIADB_ROOT_PASSWORD: <dbrootpwd>
+
+networks:
+  zabbix:
