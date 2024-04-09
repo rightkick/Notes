@@ -1,50 +1,55 @@
 # Check status of gluster
+```
 gluster volume status
 gluster volume status <volume name>
 gluster volume status <volume name> detail
 gluster volume status <volume name> clients
 gluster volume status <volume name> mem
 gluster volume heal <volume name> info
+```
 
 # Resolve split brain:
 Resolve directory/gfid split brain
 Example with 3 nodes (2 + 1 arbiter) with split brain:
-
+```
 gluster volume heal engine info split-brain
-Brick gluster0:/gluster/engine/brick
-/e1c80750-b880-495e-9609-b8bc7760d101/ha_agent
+Brick gluster0:/gluster/engine/brick/e1c80750-b880-495e-9609-b8bc7760d101/ha_agent
 Status: Connected
 Number of entries in split-brain: 1
 
-Brick gluster1:/gluster/engine/brick
-/e1c80750-b880-495e-9609-b8bc7760d101/ha_agent
+Brick gluster1:/gluster/engine/brick/e1c80750-b880-495e-9609-b8bc7760d101/ha_agent
 Status: Connected
 Number of entries in split-brain: 1
 
-Brick gluster2:/gluster/engine/brick
-/e1c80750-b880-495e-9609-b8bc7760d101/ha_agent
+Brick gluster2:/gluster/engine/brick/e1c80750-b880-495e-9609-b8bc7760d101/ha_agent
 Status: Connected
 Number of entries in split-brain: 1
+```
 
 The conflicting file (in this case is a directory) is 
 
-/e1c80750-b880-495e-9609-b8bc7760d101/ha_agent
+"/e1c80750-b880-495e-9609-b8bc7760d101/ha_agent"
 
 Get the gfid of file: 
 
-getfattr -m . -d -e hex e1c80750-b880-495e-9609-b8bc7760d101/ha_agent
+`getfattr -m . -d -e hex e1c80750-b880-495e-9609-b8bc7760d101/ha_agent`
+
 
 That gives the gfid: 0x277c9caa9dce4a17a2a93775357befd5
 
 Then delete file within the bad brick (not gluster mount point):
+```
 cd /gluster/engine/brick/.glusterfs/27/7c
 rm -rf 277c9caa-9dce-4a17-a2a9-3775357befd5 (or move it out of there)
+```
 
 Trigger heal:
+```
 gluster volume heal engine
+```
 
 Then all ok:
-
+```
 gluster volume heal engine info
 Brick gluster0:/gluster/engine/brick
 Status: Connected
@@ -57,8 +62,10 @@ Number of entries: 0
 Brick gluster2:/gluster/engine/brick
 Status: Connected
 Number of entries: 0
+```
 
 ### Performance tweaks that have a nice boost: 
+```
 gluster volume set vms remote-dio enable
 gluster volume set vms performance.write-behind-window-size 8MB
 gluster volume set vms performance.cache-size 1GB
@@ -67,6 +74,7 @@ gluster volume set vms performance.readdir-ahead on
 gluster volume set vms client.event-threads 8
 gluster volume set vms server.event-threads 8
 gluster volume set engine features.shard-block-size 512MB
+```
 
 Useful link:
 https://support.rackspace.com/how-to/glusterfs-troubleshooting/
