@@ -1,2 +1,2 @@
-# Notes
-My random systems engineering notes that relate mostly to Linux
+# Notes on Systems Engineering
+Notes and collection of different tools, configs and scripts. 
