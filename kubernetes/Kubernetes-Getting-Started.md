@@ -14,7 +14,7 @@ Kubernetes is a container orchestrator solution. It is deployed as a cluster of 
 - **worker nodes**: these are physical or virtual nodes that run workload processes (pods). 
 - **kubelet**: agent that enables the control plane to manage the node. It makes sure that the containers run in the pods. 
 - **kube-proxy**: is a network proxy that runs on each node in the cluster and is responsible to manage network aspects related to the pods. It can use the OS available netfilter functions. 
-- **container runtime**: a foundamental component that makes teh nodes able to run containers. Several container runtime options are supported, which implement the Kubernetes CRI, such as containerd, CRIO, docker, etc. 
+- **container runtime**: a foundamental component that makes teh nodes able to run containers. Several container runtime options are supported, which implement the Kubernetes CRI, such as containerd, CRIO, rkt, docker, etc. 
 
 ## Additional kubernetes components
 
@@ -29,8 +29,9 @@ Kubernetes is a container orchestrator solution. It is deployed as a cluster of 
 Apart from the vanilla option, there are several other Kubernetes distributions out there that may be more fit for some cases. They come prebuilt with several plugins and tools thus usually are more opinionated. 
 
 - **K3s**: lighweight version provided from Rancher (acquired from SUSE)
-- **K0s**: lighweight version
-- **Mikrok8s**: lighweight version
+- **K0s**: lighweight version provided from Mirantis
+- **Kubeedge**: lighweight version with focus on edge and IoT
+- **Mikrok8s**: lighweight version provided from Canonical
 - **Minikube**: lighweight version for learning/dev purposes. 
 - **Kind**: lighweight version for learning/dev purposes. 
 - **Openshift**: enterprise version provided form Redhat (OKD is the OSS upstream)
