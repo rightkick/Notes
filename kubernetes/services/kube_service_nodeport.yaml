@@ -1,0 +1,16 @@
+# Kubernetes Service: NodePort
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-svc-np
+  labels:
+    app: nginx-svc-np
+spec:
+  type: NodePort
+  ports:
+    - port: 80 # the service port acceessible within the cluster
+      protocol: TCP
+      targetPort: 80 # the port exposed from the pod
+      nodePort: 30010 # the node port accessible from outside the cluster
+  selector:
+    app: nginx-netshoot
