@@ -93,7 +93,7 @@ Apart from the vanilla option, there are several other Kubernetes distributions 
 
 ### Cluster
 
-A kubernetes cluster is a set of nodes that coordinate to run the cluster services. It comproses of at least one master node and one worker node. The cluster can be a single node also that runs both master and worker node logic. 
+A kubernetes cluster is a set of nodes that coordinate to run the cluster services. It comprises of at least one master node and one worker node. The cluster can be a single node also that runs both master and worker node logic. 
 
 - Get list of clusters: `kubectl config current-context`
 - Get cluster status: `kubectl get cs`
@@ -162,12 +162,14 @@ Following are the different types of services:
 - **LoadBalancer**: Exposes the service externally using a cloud provider’s load balancer.
 - **ExternalName**: Maps the service to an external name via a DNS provider returning a CNAME record. 
 
-Get lis of services: `kubectl get svc -o wide`
+Get list of services: `kubectl get svc -o wide`
 
 
 # Tips
 - You can append `-w` at you `kubectl` commands to watch/follow the output. 
-- Use netshoot container to learn/troubleshoot networking. Exec into it as below: 
+- Most commands have a short version for less typing. Example: `kubectl get ns`
+- Update your aliases to map `k` -> `kubectl`. 
+- Use `netshoot` container to learn/troubleshoot networking. Exec into it as below: 
 ```
 kubectl exec -it <netshoot_pod> -c netshoot -- /bin/sh
 ```
