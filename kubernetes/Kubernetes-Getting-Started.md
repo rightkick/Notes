@@ -1,13 +1,16 @@
 # Intro
 
-Kubernetes is a container orchestrator solution. It is deployed as a cluster of a single or multiple nodes. The nodes are of two types: master nodes which run control plane processes and worker nodes which run workload processes. The workload is a set of pods that are deployed from the user.
+Kubernetes is a container orchestrator engine. It is deployed as a cluster of a single or multiple nodes. The nodes are of two types: master nodes, which run control plane processes, and worker nodes which run workload processes. The workload is a set of pods that are deployed from the user and run on worker nodes.
 
 ## Architecture
+
+Following is the architecture with the main components and their interactions. An explanation of each component follows further down.
+
 ![image](https://github.com/rightkick/Notes/assets/15179132/b5d553d6-cc6a-4207-9e38-6e36cdff5da0)
 
-image source: https://kubernetes.io/
+*image source: https://kubernetes.io/*
 
-## Control plane components 
+### Control plane components 
 - **master nodes**: these are physical or virtual nodes that run the control plane processes. It can be a single node or multiple nodes to provide HA. Master nodes can act also as a worker node, usually when you need to go with a single node cluster. 
 - **Kubernetes API server**: The API server is the front end for the Kubernetes control plane. It is a component (pod) that provides all the API needed to run and manage the cluster. The name of this pod is kube-apiserver.  
 - **Kubernetes scheduler**: this is responsible for scheduling the pods to the nodes. The pod is named kube-scheduler. 
@@ -16,14 +19,14 @@ image source: https://kubernetes.io/
 - **cloud controller manager**: optional component to provide integration with cloud APIs so as to manage clusters hosted at cloud providers. 
 
 
-## Data plane components
+### Data plane components
 - **worker nodes**: these are physical or virtual nodes that run workload processes (pods). 
 - **kubelet**: agent that enables the control plane to manage the node. It makes sure that the containers run in the pods and provides health info at the control plane by interacting with the kube-apiserver that runs at the master nodes. 
 - **kube-proxy**: is a network proxy that runs on each node in the cluster and is responsible to manage network aspects related to the pods. It can use the OS available netfilter functions. 
 - **container runtime**: a foundamental component that makes teh nodes able to run containers. Several container runtime options are supported, which implement the Kubernetes CRI, such as containerd, CRIO, rkt, docker, etc. 
 
 
-## Additional kubernetes components
+### Additional kubernetes components
 
 - **kubectl**: a cluster management tool that is used to interact with the Kubernetes cluster. The tool is usually run out of the cluster and can be used to manage multiple clusters. 
 - **Kubernetes dashboard**: one can enable the dashboard to provide simple web based management. 
@@ -33,14 +36,47 @@ image source: https://kubernetes.io/
 - **Virtual Machines**: you can install kubevirt so as to manage VMs within Kubernetes. 
 
 
-# Types of kubernetes objects
+### Types of kubernetes objects
 
 - Pod
 - Replicaset
 - Deployment
+- Service
 - StatefulSet
+- DaemonSet
 - Jobs
 - CronJobs
+- Ingress
+- NetworkPolicy
+- ConfigMap
+- Secret
+- PersistentVolume (PV)
+- PersistentVolumeClaim (PVC)
+- Namespace
+- Annotation
+
+### Kubernetes Networking
+
+Kubernetes addresses four types of network requirements: 
+- container-to-container connectivity: containers belonging in the same pod share the same network namespace. connectivity between containers is achieved through the localhost within the pod.
+- pod-to-pod connectivity: achieved through veth pairs, local network bridges and overlay networking. 
+- pod-to-service connectivity: achieved through Services. Requests to services are proxied to the available Pods. The proxying is implemented by kube-proxy, a Node-level control plane process that runs on each Node.
+- external-to-service connectivity: achieved through Services (Ingress, LoadBalancer). 
+
+The kubernetes network model is implemented from the container runtime (CRI) using network pugins or container network interfaces (CNI). The network model assures the following: 
+- pods can communicate with all other pods on any other node without NAT
+- agents on a node (e.g. system daemons, kubelet) can communicate with all pods on that node
+
+On multi-node cluster setups kubernetes will use virtual overlay networking (VXLAN, GENEVE, BGP, etc) to provide a flat network where all kubernetes resources will use to reach each other. 
+
+Kubernetes includes also DNS funtions (usually through CoreDNS) so as to automatically assign DNS names to pods and services. 
+
+Kubernetes provides also the option to configure network policies so as to control or limit the communication between the resources. 
+
+Kubernetes will allocate different non-overlapping IP address ranges to pods, services and nodes. IPV4, IPV6 or dual stack (IPV4 and IPV6) are supported. The IP address allocation is split as below:
+- The network plugin (CNI) is configured to assign IP addresses to Pods.
+- The kube-apiserver is configured to assign IP addresses to Services.
+- The kubelet or the cloud-controller-manager is configured to assign IP addresses to Nodes.
 
 
 # Kubernetes flavors: 
