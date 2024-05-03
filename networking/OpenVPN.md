@@ -21,12 +21,12 @@ cd /etc/openvpn/easyrsa/
 ```
 
 ### Prepare vars file:
-`nano vars`
-
-vars content:
 ```
-Q+++
-cat /etc/openvpn/easyrsa/vars
+nano vars
+```
+
+vars sample content:
+```
 set_var EASYRSA                 "$PWD"
 set_var EASYRSA_PKI             "$EASYRSA/pki"
 set_var EASYRSA_DN              "cn_only"
@@ -45,8 +45,10 @@ set_var EASYRSA_NS_COMMENT      "MyCorp CERTIFICATE AUTHORITY"
 set_var EASYRSA_EXT_DIR         "$EASYRSA/x509-types"
 set_var EASYRSA_SSL_CONF        "$EASYRSA/openssl-easyrsa.cnf"
 set_var EASYRSA_DIGEST          "sha256"
-+++Q
+```
 
+Make vars executable:
+```
 chmod +x vars
 ```
 
@@ -64,13 +66,14 @@ CA creation complete and you may now import and sign cert requests.
 Your new CA certificate file for publishing is at:
 /etc/openvpn/easyrsa/pki/ca.crt
 
+Generate a certificate request:
 `./easyrsa gen-req server nopass`
 
 Keypair and certificate request completed. Your files are:
 req: /etc/openvpn/easyrsa/pki/reqs/server.req
 key: /etc/openvpn/easyrsa/pki/private/server.key
 
-Sign the 'hakase-server' key using our CA certificate.
+Sign the certificate request key using our CA certificate.
 `./easyrsa sign-req server server`
 
 Certificate created at: /etc/openvpn/easyrsa/pki/issued/server.crt
@@ -83,7 +86,7 @@ pki/issued/server.crt: OK
 ### Build DH key: (required by TLS mode when not using TLS with elliptic curves).
 `./easyrsa gen-dh`
 
-### Vuild Hash-based Message Authentication Code (HMAC) key
+### Build Hash-based Message Authentication Code (HMAC) key
 This protects from:
  - Portscanning.
  - DOS attacks on the OpenVPN UDP port.
