@@ -14,8 +14,9 @@ mkdir /etc/openvpn/server/server-keys
 ```
 cd /etc/openvpn
 wget https://github.com/OpenVPN/easy-rsa/releases/download/v3.1.7/EasyRSA-3.1.7.tgz
-mv EasyRSA-3.0.7 easyrsa
-rm -rf EasyRSA-3.0.7*
+tar -xvf EasyRSA-3.1.7.tgz
+mv EasyRSA-3.1.7 easyrsa
+rm -rf EasyRSA-3.1.7*
 cd /etc/openvpn/easyrsa/
 ```
 
