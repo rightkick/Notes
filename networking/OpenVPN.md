@@ -96,7 +96,7 @@ pki/issued/server.crt: OK
 
 ### Build Hash-based Message Authentication Code (HMAC) key
 This protects from:
- - Portscanning.
+ - Port scanning.
  - DOS attacks on the OpenVPN UDP port.
  - SSL/TLS handshake initiations from unauthorized machines.
  - Any eventual buffer overflow vulnerabilities in the SSL/TLS implementation.
