@@ -67,24 +67,32 @@ Your new CA certificate file for publishing is at:
 /etc/openvpn/easyrsa/pki/ca.crt
 
 Generate a certificate request:
-`./easyrsa gen-req server nopass`
+```
+./easyrsa gen-req server nopass
+```
 
 Keypair and certificate request completed. Your files are:
 req: /etc/openvpn/easyrsa/pki/reqs/server.req
 key: /etc/openvpn/easyrsa/pki/private/server.key
 
 Sign the certificate request key using our CA certificate.
-`./easyrsa sign-req server server`
+```
+./easyrsa sign-req server server
+```
 
 Certificate created at: /etc/openvpn/easyrsa/pki/issued/server.crt
 
 Verify the certificate:
-`openssl verify -CAfile pki/ca.crt pki/issued/server.crt`
+```
+openssl verify -CAfile pki/ca.crt pki/issued/server.crt
+```
 
 pki/issued/server.crt: OK
 
 ### Build DH key: (required by TLS mode when not using TLS with elliptic curves).
-`./easyrsa gen-dh`
+```
+./easyrsa gen-dh
+```
 
 ### Build Hash-based Message Authentication Code (HMAC) key
 This protects from:
@@ -92,11 +100,15 @@ This protects from:
  - DOS attacks on the OpenVPN UDP port.
  - SSL/TLS handshake initiations from unauthorized machines.
  - Any eventual buffer overflow vulnerabilities in the SSL/TLS implementation.
-`openvpn --genkey --secret /etc/openvpn/server/server-keys/ta.key`
+```
+openvpn --genkey --secret /etc/openvpn/server/server-keys/ta.key
+```
 
 ### Generate crl key:
 The CRL (Certificate Revoking List) key will be used for revoking the client key
-`./easyrsa gen-crl`
+```
+./easyrsa gen-crl
+```
 
 ### Copy the certificate files:
 ```
