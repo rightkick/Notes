@@ -138,7 +138,7 @@ cp /etc/openvpn/server/server-keys/ta.key /etc/openvpn/clients/client01
 
 ### Example server configuration:
 ```
-port 2794
+port 6789
 proto udp
 dev tun0
 
@@ -208,7 +208,7 @@ crl-verify server-keys/crl.pem
 client
 dev tun0
 proto udp
-remote <remote> 2794
+remote <remote> 6789
 ;remote-random
 resolv-retry infinite
 nobind
