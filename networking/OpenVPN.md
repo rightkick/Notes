@@ -53,30 +53,32 @@ chmod +x vars
 ### Initialize PKI:
 ```
 ./easyrsa init-pki
-./easyrsa build-ca (define a password)
-OR ./easyrsa build-ca nopass (without a password protection)
+./easyrsa build-ca nopass (without a password protection for server use)
 
+OR
+
+./easyrsa build-ca (define a password in case you need to manually provide a password when starting the VPN server...)
 ```
 
 CA creation complete and you may now import and sign cert requests.
 Your new CA certificate file for publishing is at:
 /etc/openvpn/easyrsa/pki/ca.crt
 
-`./easyrsa gen-req IOT nopass`
+`./easyrsa gen-req server nopass`
 
 Keypair and certificate request completed. Your files are:
-req: /etc/openvpn/easyrsa/pki/reqs/IOT.req
-key: /etc/openvpn/easyrsa/pki/private/IOT.key
+req: /etc/openvpn/easyrsa/pki/reqs/server.req
+key: /etc/openvpn/easyrsa/pki/private/server.key
 
 Sign the 'hakase-server' key using our CA certificate.
-`./easyrsa sign-req server IOT`
+`./easyrsa sign-req server server`
 
-Certificate created at: /etc/openvpn/easyrsa/pki/issued/IOT.crt
+Certificate created at: /etc/openvpn/easyrsa/pki/issued/server.crt
 
 Verify the certificate:
-`openssl verify -CAfile pki/ca.crt pki/issued/IOT.crt`
+`openssl verify -CAfile pki/ca.crt pki/issued/server.crt`
 
-pki/issued/IOT.crt: OK
+pki/issued/server.crt: OK
 
 ### Build DH key: (required by TLS mode when not using TLS with elliptic curves).
 `./easyrsa gen-dh`
@@ -96,8 +98,8 @@ The CRL (Certificate Revoking List) key will be used for revoking the client key
 ### Copy the certificate files:
 ```
 cp pki/ca.crt /etc/openvpn/server/server-keys
-cp pki/issued/IOT.crt /etc/openvpn/server/server-keys
-cp pki/private/IOT.key /etc/openvpn/server/server-keys
+cp pki/issued/server.crt /etc/openvpn/server/server-keys
+cp pki/private/server.key /etc/openvpn/server/server-keys
 cp pki/dh.pem /etc/openvpn/server/server-keys
 cp pki/crl.pem /etc/openvpn/server/server-keys
 ```
@@ -127,8 +129,8 @@ dev tun0
 
 # Server Keys
 ca server-keys/ca.crt
-cert server-keys/iot-server.crt
-key server-keys/iot-server.key  # This file should be kept secret
+cert server-keys/server.crt
+key server-keys/server.key  # This file should be kept secret
 dh server-keys/dh.pem
 tls-auth server-keys/ta.key 0 # This file is secret
 
