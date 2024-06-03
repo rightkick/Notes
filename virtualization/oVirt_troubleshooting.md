@@ -365,6 +365,10 @@ psql
 on ovirt 4.2:
 su - postgres -c 'scl enable rh-postgresql95 -- psql'
 \c engine
+
+on ovirt 4.3:
+su - postgres -c 'scl enable rh-postgresql10 -- psql'
+\c engine
 ```
 
 2. Get the VM ID (from GUI or DB) and  find the broken snapshot in the snapshots table and delete it.
@@ -381,6 +385,12 @@ select image_guid,parentid,imagestatus,vm_snapshot_id,volume_type,volume_format,
  1e75898c-9790-4163-ad41-847cfe84db40 | cf8707f2-bf1f-4827-8dc2-d7e6ffcc3d43 |           4 | 818c46ff-4c32-496d-a4ca-12459e4ca917 |           2 |             4 | f
  604d84c3-8d5f-4bb6-a2b5-0aea79104e43 | 1e75898c-9790-4163-ad41-847cfe84db40 |           1 | 6a93187c-2b3f-409f-9831-3c11d36f3efb |           2 |             4 | t
 ```
+
+Note that if the backing files show a correct status of the listed snapshots, then you may simply update the status of the snapshot in the DB:
+```
+update images set imagestatus='1' where vm_snapshot_id='818c46ff-4c32-496d-a4ca-12459e4ca917';
+```
+
 5. Delete the broken snapshot from the snapshots table.
 ```
 engine# delete from snapshots where snapshot_id='818c46ff-4c32-496d-a4ca-12459e4ca917';
