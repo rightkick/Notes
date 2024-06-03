@@ -351,7 +351,8 @@ If you end up with corrupted sanlock lockspace due to power outage, hw failure o
     Run hosted-engine –reinitialize-lockspace from the host with running broker
 
 
-# Recover VM from corrupted snapshot with disk in illegal state: (not clean solution as it leaves orphaned snapshots at the storage domains)
+# Recover VM from corrupted snapshot with disk in illegal state:
+(not clean solution as it leaves orphaned snapshots at the storage domains)
 
 1. Login at engine DB
 ssh to engine and run:
