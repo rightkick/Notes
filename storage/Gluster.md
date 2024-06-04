@@ -1,3 +1,61 @@
+# Install GlusterFS
+```
+apt install glusterfs-server -y
+
+systemctl enable glusterd.service
+systemctl restart glusterd
+```
+
+For better performance you need to add the following line at `/etc/glusterfs/glusterd.vol` of each host:
+```
+option rpc-auth-allow-insecure on
+```
+
+# Add glusterfs nodes
+```
+gluster peer probe gluster1
+gluster peer probe gluster2
+```
+
+# Create bricks
+The bricks will be used to create gluster volumes. These bricks should be places at least at different partitions or different disks.
+
+```
+mkdir -p /mnt/gluster/{vms,iso}/brick
+```
+
+# Create volumes
+For 3 replica nodes:
+```
+gluster volume create vms replica 3 gluster0:/mnt/gluster/vms/brick gluster1:/mnt/gluster/vms/brick gluster2:/mnt/gluster/vms/brick
+
+gluster volume create iso replica 3 gluster0:/mnt/gluster/iso/brick gluster1:/mnt/gluster/iso/brick gluster2:/mnt/gluster/iso/brick
+```
+
+# Set gluster volumes attributes
+```
+gluster volume set vms group virt
+gluster volume set vms network.ping-timeout 30
+gluster volume set vms performance.strict-o-direct on
+gluster volume set vms server.allow-insecure on
+gluster volume set vms features.shard-block-size 512MB
+gluster volume start vms
+gluster volume heal vms granular-entry-heal enable
+
+gluster volume set iso cluster.quorum-type auto
+gluster volume set iso cluster.server-quorum-type server
+gluster volume set iso network.ping-timeout 30
+gluster volume set iso server.allow-insecure on
+gluster volume start iso
+gluster volume heal iso granular-entry-heal enable
+```
+
+Note that in case you are testing with two nodes only, then you need to disable quorum at the volumes with:
+```
+gluster volume set VOLNAME cluster.server-quorum-type none
+gluster volume set VOLNAME quorum-type none
+```
+
 # Check status of gluster
 ```
 gluster volume status
@@ -26,11 +84,11 @@ Status: Connected
 Number of entries in split-brain: 1
 ```
 
-The conflicting file (in this case is a directory) is 
+The conflicting file (in this case is a directory) is
 
 "/e1c80750-b880-495e-9609-b8bc7760d101/ha_agent"
 
-Get the gfid of file: 
+Get the gfid of file:
 
 `getfattr -m . -d -e hex e1c80750-b880-495e-9609-b8bc7760d101/ha_agent`
 
@@ -64,7 +122,7 @@ Status: Connected
 Number of entries: 0
 ```
 
-### Performance tweaks that have a nice boost: 
+### Performance tweaks that have a nice boost:
 ```
 gluster volume set vms remote-dio enable
 gluster volume set vms performance.write-behind-window-size 8MB
