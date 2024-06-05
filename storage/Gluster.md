@@ -86,7 +86,8 @@ gluster volume heal <volume name> info
 
 # Resolve split brain:
 Resolve directory/gfid split brain
-Example with 3 nodes (2 + 1 arbiter) with split brain:
+
+Example with 3 nodes (2 + 1 arbiter):
 ```
 gluster volume heal engine info split-brain
 Brick gluster0:/gluster/engine/brick/e1c80750-b880-495e-9609-b8bc7760d101/ha_agent
