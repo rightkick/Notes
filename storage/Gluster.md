@@ -1,3 +1,14 @@
+# Intro
+GlusterFS is an open source distributed file system. The project also has great documentation and Redhat has invested quite al a lot in maturing the solution and its adaption. 
+
+The file system is distributed between the participating nodes which are referred as peers. The peers have a set of bricks which are the building blocks of the glusterfs volumes. Glusterfs supports different distribution models such as replicated, distributed, dispersed and a combination of those which can quickly become complex. 
+
+Generally the gluster bricks can be placed on top any file system that supports extended attributes. It is recommneded that the bricks reside on top of different partition, LVM volumes or separate disk for better performance and resiliency. 
+
+I have had great success using the mirrored approach as a data store for virtualization solutions such as oVirt, custom KVM or Proxmox, using the high performant libgfapi access mode which is supported from libvirt.
+
+In case you are going into production take note that you need to make sure you meet some requirements, such as at least three nodes so as to meet quorum. This can be a set of three identical servers or 2 high-end servers + 1 low-end one which will act as an arbiter for the quorum requirement. This helps to avoid split brains which can easily occur when you go with a 2 node setup. 
+
 # Install GlusterFS
 ```
 apt install glusterfs-server -y
@@ -11,20 +22,25 @@ For better performance you need to add the following line at `/etc/glusterfs/glu
 option rpc-auth-allow-insecure on
 ```
 
-# Add glusterfs nodes
+Then restart glusterfs: 
+```
+systemctl restart glusterd
+```
+
+## Add glusterfs peers
 ```
 gluster peer probe gluster1
 gluster peer probe gluster2
 ```
 
-# Create bricks
+## Create bricks
 The bricks will be used to create gluster volumes. These bricks should be places at least at different partitions or different disks.
 
 ```
 mkdir -p /mnt/gluster/{vms,iso}/brick
 ```
 
-# Create volumes
+## Create volumes
 For 3 replica nodes:
 ```
 gluster volume create vms replica 3 gluster0:/mnt/gluster/vms/brick gluster1:/mnt/gluster/vms/brick gluster2:/mnt/gluster/vms/brick
@@ -32,7 +48,7 @@ gluster volume create vms replica 3 gluster0:/mnt/gluster/vms/brick gluster1:/mn
 gluster volume create iso replica 3 gluster0:/mnt/gluster/iso/brick gluster1:/mnt/gluster/iso/brick gluster2:/mnt/gluster/iso/brick
 ```
 
-# Set gluster volumes attributes
+## Set gluster volumes attributes
 ```
 gluster volume set vms group virt
 gluster volume set vms network.ping-timeout 30
@@ -56,7 +72,7 @@ gluster volume set VOLNAME cluster.server-quorum-type none
 gluster volume set VOLNAME quorum-type none
 ```
 
-# Check status of gluster
+## Check status of gluster
 ```
 gluster volume status
 gluster volume status <volume name>
@@ -122,7 +138,7 @@ Status: Connected
 Number of entries: 0
 ```
 
-### Performance tweaks that have a nice boost:
+## Performance tweaks that have may boost your performance of the glusterfs volumes:
 ```
 gluster volume set vms remote-dio enable
 gluster volume set vms performance.write-behind-window-size 8MB
