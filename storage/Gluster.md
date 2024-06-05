@@ -49,7 +49,7 @@ gluster volume create iso replica 3 gluster0:/mnt/gluster/iso/brick gluster1:/mn
 ```
 
 ## Set gluster volumes attributes
-These volume attributes are recommended from the oVirt project so as to run VM workloads on top the glusterfs volumes. Glusterfs supports many attributes which you can investigate at the docs and apply them as needed. 
+These volume attributes are recommended from the oVirt project so as to run VM workloads on top the glusterfs volumes. One important detail of theese attributes is the sharding that glusterfs supports. This is useful when you use the volumes to store VM disk images (qcow2 or raw) which then are automatically sharded from glusterfs in order to ease their replication. Sharding must be enabled when the volume is initially created and cannot be disabled later as that will lead to data loss. Glusterfs supports many attributes which you can investigate at the docs and apply them as needed. 
 
 ```
 gluster volume set vms group virt
