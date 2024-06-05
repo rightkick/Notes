@@ -140,7 +140,7 @@ Status: Connected
 Number of entries: 0
 ```
 
-## Performance tweaks that have may boost your performance of the glusterfs volumes:
+## Performance tweaks that may boost your performance of the glusterfs volumes:
 ```
 gluster volume set vms remote-dio enable
 gluster volume set vms performance.write-behind-window-size 8MB
