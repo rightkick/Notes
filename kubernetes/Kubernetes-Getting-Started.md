@@ -36,7 +36,7 @@ Following is the architecture with the main components and their interactions. A
 - **Virtual Machines**: you can install kubevirt so as to manage VMs within Kubernetes. 
 
 
-### Types of kubernetes objects
+### Basic Types of kubernetes objects
 
 - Pod
 - Replicaset
@@ -54,6 +54,9 @@ Following is the architecture with the main components and their interactions. A
 - PersistentVolumeClaim (PVC)
 - Namespace
 - Annotation
+
+If you are interested to list all the available object types you can do that with `kubectl api-resources` and if you need a description of the reosurce type do that with `kubectl explain <object>`. 
+
 
 ### Kubernetes Networking
 
@@ -228,6 +231,7 @@ Get list of services: `kubectl get svc -o wide`
 - You can append `-w` at you `kubectl` commands to watch/follow the output. 
 - Most commands have a short version for less typing. Example: `kubectl get ns`
 - Update your shell aliases to map `k` -> `kubectl`. 
+- Append at your .bashrc to enable bash completion for kubectl commands: `source <(kubectl completion bash)`
 - Use `netshoot` container to learn/troubleshoot networking. Exec into it as below: 
 ```
 kubectl exec -it <netshoot_pod> -c netshoot -- /bin/sh
