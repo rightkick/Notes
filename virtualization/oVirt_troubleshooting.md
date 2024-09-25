@@ -230,7 +230,7 @@ yum --showduplicates list ansible
 yum downgrade ansible-2.7.10-1.el7
 ```
 
-## Ovirt procedure for major upgrade
+### Ovirt procedure for major upgrade
 1. update DC to latest minor version (engine + nodes)
 
 2. enable global maintenance: `hosted-engine --set-maintenance --mode=global`
@@ -443,17 +443,17 @@ Then you delete the redundant file at teh ovirt storage domain.
 yum install libguestfs-xfs
 ```
 
-# Determine location of HostedEngine disk. You need the disk located at the actual gluster mount point and not at /var/run.
+Determine location of HostedEngine disk. You need the disk located at the actual gluster mount point and not at /var/run.
 ```
 virsh -r dumpxml HostedEngine
 ```
 
-# Power off engine
+Power off engine
 ```
 hosted-engine --vm-poweroff
 ```
 
-# run guestfish to repair VM disk
+Run guestfish to repair VM disk
 ```
 LIBGUESTFS_BACKEND=direct guestfish --rw -a <disk>
 ```
@@ -469,7 +469,8 @@ LIBGUESTFS_BACKEND=direct guestfish --rw --format=raw -a /rhev/data-center/mnt/g
 /dev/sda1: swap
 /dev/sda2: xfs
 ```
-# repair disks
+
+Repair disks
 ```
 xfs-repair /dev/sda2
 ```
@@ -484,31 +485,31 @@ xfs_repair /dev/mapper/loop0p2
 ```
 OR you could delete metadata log if needed: `xfs_repair -L /dev/mapper/loop0p2`
 
-# Restart HostedEngine Paused
+Restart HostedEngine Paused
 ```
 hosted-engine --vm-start-paused
 ```
 
-# Add VNC password
+Add VNC password
 ```
 hosted-engine --add-console-password
 ```
 
-# Connect via Remote Viewer
+Connect via Remote Viewer
 
-# Start VM and quickly edit Grub on viewer (move fast)
+Start VM and quickly edit Grub on viewer (move fast)
 ```
 virsh -c qemu://hostname.local/system resume HostedEngine
 ```
 
  This will allow to edit grub or select another kernel to boot.
 
-# Enable vdsm debug logs:
+### Enable vdsm debug logs:
 ```
 vdsm-client Host setLogLevel level=DEBUG
 ```
 
-# Disable vdsm debug logs:
+### Disable vdsm debug logs:
 ```
 vdsm-client Host setLogLevel level=INFO
 ```
