@@ -104,14 +104,14 @@ Number of entries in split-brain: 1
 
 The conflicting file (in this case is a directory) is
 
-"/e1c80750-b880-495e-9609-b8bc7760d101/ha_agent"
+`/e1c80750-b880-495e-9609-b8bc7760d101/ha_agent`
 
 Get the gfid of file:
 
 `getfattr -m . -d -e hex e1c80750-b880-495e-9609-b8bc7760d101/ha_agent`
 
 
-That gives the gfid: 0x277c9caa9dce4a17a2a93775357befd5
+That gives the gfid: `0x277c9caa9dce4a17a2a93775357befd5`
 
 Then delete file within the bad brick (not gluster mount point):
 ```
