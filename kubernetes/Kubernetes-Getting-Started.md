@@ -101,9 +101,11 @@ Apart from the vanilla option, there are several other Kubernetes distributions 
 # Useful Kubernetes tools: 
 
 ### CI/CD
+CI/CD tools that integrate well with Kubernetes:
 - ArgoCD
 
 ### Cluster management
+Tools that facilitate cluster management:
 - k9s
 - Lens
 - Kubeshark
@@ -115,16 +117,18 @@ Apart from the vanilla option, there are several other Kubernetes distributions 
 - Cluster API
 
 ### Storage
+Some CSI plugins that integrate with Kubernetes:
 - Longhorn
 - OpenEBS
 - Rook
 - SeaweedFS
 
 ### Virtualization
+Plugins that make k8s capable of running VMs:
 - Kubevirt
 
 ### CNI
-Some famious CNI plugins are the following:
+Some famous CNI plugins are the following:
 
 - Calico
 - Cilium
@@ -133,7 +137,9 @@ Some famious CNI plugins are the following:
 - Flannel
 - Kube-OVN
 
+
 ### Playground for practise
+In case you need to practise some k8s without deploying your own VMs:
 - https://labs.play-with-k8s.com/
 
 
