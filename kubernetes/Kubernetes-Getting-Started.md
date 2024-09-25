@@ -28,12 +28,12 @@ Kubernetes is a container orchestrator solution. It is deployed as a cluster of 
 
 Apart from the vanilla option, there are several other Kubernetes distributions out there that may be more fit for some cases. They come prebuilt with several plugins and tools thus usually are more opinionated. 
 
-- K3s: lighweight version provided from Rancher (acquired from SUSE)
-- K0s: lighweight version
-- Mikrok8s: lighweight version
-- Minikube: lighweight version for learning/dev purposes. 
-- Kind: lighweight version for learning/dev purposes. 
-- Openshift: enterprise version provided form Redhat (OKD is the OSS upstream)
+- **K3s**: lighweight version provided from Rancher (acquired from SUSE)
+- **K0s**: lighweight version
+- **Mikrok8s**: lighweight version
+- **Minikube**: lighweight version for learning/dev purposes. 
+- **Kind**: lighweight version for learning/dev purposes. 
+- **Openshift**: enterprise version provided form Redhat (OKD is the OSS upstream)
 
 
 # Cheat Sheet
