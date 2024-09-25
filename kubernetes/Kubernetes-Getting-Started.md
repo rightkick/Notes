@@ -78,3 +78,25 @@ Edit a replica-set: `kubectl edit replicaset <replicaset name>`
 Force replace a replica-set: `kubectl replace -f file.yml --force`
 
 Scale a replica-set: `kubectl scale replicaset <replicaset name> --replicas=3`
+
+
+# Useful Kubernetes tools: 
+
+### CI/CD
+- ArgoCD
+
+### Cluster manager
+- k9s
+- Lens
+- Kubeshark
+- kubeadm
+- kubespray
+- Rancher
+- CloudStack
+- Kosmotron
+
+## Storage
+- Longhorn
+- OpenEBS
+- Rook
+- SeaweedFS
