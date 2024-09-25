@@ -168,7 +168,7 @@ Get list of services: `kubectl get svc -o wide`
 # Tips
 - You can append `-w` at you `kubectl` commands to watch/follow the output. 
 - Most commands have a short version for less typing. Example: `kubectl get ns`
-- Update your aliases to map `k` -> `kubectl`. 
+- Update your shell aliases to map `k` -> `kubectl`. 
 - Use `netshoot` container to learn/troubleshoot networking. Exec into it as below: 
 ```
 kubectl exec -it <netshoot_pod> -c netshoot -- /bin/sh
