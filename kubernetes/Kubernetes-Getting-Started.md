@@ -17,10 +17,24 @@ Kubernetes is a container orchestrator solution. It is deployed as a cluster of 
 - **container runtime**: a foundamental component that makes teh nodes able to run containers. Several container runtime options are supported, which implement the Kubernetes CRI, such as containerd, CRIO, docker, etc. 
 
 ## Additional kubernetes components
+
 - **Kubernetes dashboard**: one can enable the dashboard to provide simple web based management. 
 - **Monitoring and logging**
 - **Storage**: CSI plugins to provide persistent storage to the cluster. 
 - **Networking**: CNI plugins to provide advanced networking features. 
+- **Virtual Machines**: you can install kubevirt so as to manage VMs within Kubernetes. 
+
+# Kubernetes flavors: 
+
+Apart from the vanilla option, there are several other Kubernetes distributions out there that may be more fit for some cases. They come prebuilt with several plugins and tools thus usually are more opinionated. 
+
+- K3s: lighweight version provided from Rancher (acquired from SUSE)
+- K0s: lighweight version
+- Mikrok8s: lighweight version
+- Minikube: lighweight version for learning/dev purposes. 
+- Kind: lighweight version for learning/dev purposes. 
+- Openshift: enterprise version provided form Redhat (OKD is the OSS upstream)
+
 
 # Cheat Sheet
 
