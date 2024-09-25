@@ -1,5 +1,5 @@
 resource "local_file" "pet" {
-    filename = "/home/alex/pets.txt"
-    content = "We love pets!"
+    filename = "/home/alex/terraform-test.txt"
+    content = "We love IaaS!"
     file_permission = "0700"
 }
