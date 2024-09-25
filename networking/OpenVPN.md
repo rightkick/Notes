@@ -1,19 +1,19 @@
-# Steps: 
+# Steps:
 
-### Install openvpn: 
+### Install openvpn:
 `apt install openvpn`
 
-### Create directory tree: 
+### Create directory tree:
 ```
 mkdir /etc/openvpn/clients
 mkdir /etc/openvpn/ccd
 mkdir /etc/openvpn/server/server-keys
 ```
 
-### Install easyrsa 3: 
+### Install easyrsa 3:
 ```
 cd /etc/openvpn
-wget https://github.com/OpenVPN/easy-rsa/releases/download/v3.0.7/EasyRSA-3.0.7.tgz
+wget https://github.com/OpenVPN/easy-rsa/releases/download/v3.1.7/EasyRSA-3.1.7.tgz
 mv EasyRSA-3.0.7 easyrsa
 rm -rf EasyRSA-3.0.7*
 cd /etc/openvpn/easyrsa/
@@ -22,7 +22,7 @@ cd /etc/openvpn/easyrsa/
 ### Prepare vars file:
 `nano vars`
 
-vars content: 
+vars content:
 ```
 Q+++
 cat /etc/openvpn/easyrsa/vars
@@ -49,7 +49,7 @@ set_var EASYRSA_DIGEST          "sha256"
 chmod +x vars
 ```
 
-### Initialize PKI: 
+### Initialize PKI:
 ```
 ./easyrsa init-pki
 ./easyrsa build-ca (define a password)
@@ -72,7 +72,7 @@ Sign the 'hakase-server' key using our CA certificate.
 
 Certificate created at: /etc/openvpn/easyrsa/pki/issued/IOT.crt
 
-Verify the certificate: 
+Verify the certificate:
 `openssl verify -CAfile pki/ca.crt pki/issued/IOT.crt`
 
 pki/issued/IOT.crt: OK
@@ -81,18 +81,18 @@ pki/issued/IOT.crt: OK
 `./easyrsa gen-dh`
 
 ### Vuild Hash-based Message Authentication Code (HMAC) key
-This protects from: 
+This protects from:
  - Portscanning.
  - DOS attacks on the OpenVPN UDP port.
  - SSL/TLS handshake initiations from unauthorized machines.
  - Any eventual buffer overflow vulnerabilities in the SSL/TLS implementation.
 `openvpn --genkey --secret /etc/openvpn/server/server-keys/ta.key`
 
-### Generate crl key: 
+### Generate crl key:
 The CRL (Certificate Revoking List) key will be used for revoking the client key
 `./easyrsa gen-crl`
 
-### Copy the certificate files: 
+### Copy the certificate files:
 ```
 cp pki/ca.crt /etc/openvpn/server/server-keys
 cp pki/issued/IOT.crt /etc/openvpn/server/server-keys
@@ -101,14 +101,14 @@ cp pki/dh.pem /etc/openvpn/server/server-keys
 cp pki/crl.pem /etc/openvpn/server/server-keys
 ```
 
-### Build Client keys: 
+### Build Client keys:
 ```
 ./easyrsa gen-req client01 nopass
 ./easyrsa sign-req client client01
 openssl verify -CAfile pki/ca.crt pki/issued/client01.crt
 ```
 
-### Copy the client keys: 
+### Copy the client keys:
 ```
 mkdir /etc/openvpn/clients/client01
 cp pki/ca.crt /etc/openvpn/clients/client01
@@ -118,7 +118,7 @@ cp /etc/openvpn/server/server-keys/ta.key /etc/openvpn/clients/client01
 ```
 
 
-### Example server configuration: 
+### Example server configuration:
 ```
 port 2794
 proto udp
@@ -185,7 +185,7 @@ management 127.0.0.1 2794
 crl-verify server-keys/crl.pem
 ```
 
-### Example client configuration: 
+### Example client configuration:
 ```
 client
 dev tun0
