@@ -93,6 +93,7 @@ Apart from the vanilla option, there are several other Kubernetes distributions 
 - **K0s**: lighweight version provided from Mirantis
 - **KubeEdge**: lighweight version with focus on edge and IoT
 - **Mikrok8s**: lighweight version provided from Canonical
+- **k3d**: lighweight version for learning/dev purposes (k3s in docker)
 - **Minikube**: lighweight version for learning/dev purposes. 
 - **Kind**: lighweight version for learning/dev purposes. 
 - **Openshift**: enterprise version provided form Redhat (OKD is the OSS upstream)
@@ -107,6 +108,7 @@ CI/CD tools that integrate well with Kubernetes:
 ### Cluster management
 Tools that facilitate cluster management:
 - k9s
+- Kustomize
 - Lens
 - Kubeshark
 - kubeadm
@@ -126,6 +128,7 @@ Some CSI plugins that integrate with Kubernetes:
 ### Virtualization
 Plugins that make k8s capable of running VMs:
 - Kubevirt
+- Kata containers
 
 ### CNI
 Some famous CNI plugins are the following:
@@ -229,6 +232,15 @@ Get list of services: `kubectl get svc -o wide`
 ```
 kubectl exec -it <netshoot_pod> -c netshoot -- /bin/sh
 ```
+
+# K3D
+
+- Create a cluster: `k3d cluster create`
+- Stop a cluster: `k3d cluster stop <cluster name>`
+- Start cluster: `k3s cluster start <cluster name>`
+- List clusters: `k3d cluster list`
+- List nodes: `k3d node list`
+- Delete a cluster: `k3d cluster delete <cluster name>`
 
 
 # Minikube
