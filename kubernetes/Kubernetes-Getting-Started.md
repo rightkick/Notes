@@ -57,7 +57,7 @@ Apart from the vanilla option, there are several other Kubernetes distributions 
 ### CI/CD
 - ArgoCD
 
-### Cluster manager
+### Cluster management
 - k9s
 - Lens
 - Kubeshark
@@ -68,23 +68,23 @@ Apart from the vanilla option, there are several other Kubernetes distributions 
 - Kosmotron
 - Cluster API
 
-## Storage
+### Storage
 - Longhorn
 - OpenEBS
 - Rook
 - SeaweedFS
 
-## Virtualization
+### Virtualization
 - Kubevirt
 
-## CNI
+### CNI
 - Calico
 - Cilium
 - Cargo
 - Flannel
 - Kube-OVN
 
-## Playground for practise
+### Playground for practise
 - https://labs.play-with-k8s.com/
 
 
@@ -104,7 +104,7 @@ Get all objects: `kubectl get all`
 Create an object: `kubectl create -f file.yml`
 
 
-## Pods
+### Pods
 
 Get list of pods: `kubectl get pods`
 
