@@ -93,50 +93,93 @@ Apart from the vanilla option, there are several other Kubernetes distributions 
 
 ### Cluster
 
-Get list of clusters: `kubectl config current-context`
+A kubernetes cluster is a set of nodes that coordinate to run the cluster services. It comproses of at least one master node and one worker node. The cluster can be a single node also that runs both master and worker node logic. 
 
-Get list of nodes: `kubectl get nodes -o wide`
-
-Get namespaces: `kubectl get namespaces`
-
-Get all objects: `kubectl get all`
-
-Create an object: `kubectl create -f file.yml`
+- Get list of clusters: `kubectl config current-context`
+- Get cluster status: `kubectl get cs`
+- Get list of nodes: `kubectl get nodes -o wide`
+- Get namespaces: `kubectl get namespaces`
+- Get all objects: `kubectl get all`
+- Create an object: `kubectl create -f file.yml`
+- Describe an object (pod, deployment, etc): `kubectl describe <object type> <object name>`
 
 
 ### Pods
 
-Get list of pods: `kubectl get pods`
+A pod is a set of one or more containers scheduled on the same physical or virtual machine that acts as a unit. A pod can have one or multiple containers. Every pod has an IP address that belongs to a range assigned to a node. The IP address changes whenever the pod is recreated. The IP address assigned to the pod is accessible from all nodes within the cluster. 
 
-Get pod details: `kubectl describe pod <pod>`
-
-Exec into a pod: `kubectl exec -it <pod> -- /bin/sh`
-
-Generate a yaml file for a pod: `kubectl run redis --image=redis -o yaml --dry-run=client`
-
-Port forward: `kubectl port-forward POD [LOCAL_PORT:]REMOTE_PORT`
+- Get list of pods: `kubectl get pods`
+- Get pod details: `kubectl describe pod <pod>`
+- List pods with a specific label: `kubectl get pods -l app=nginx-netshoot`
+- Exec into a pod: `kubectl exec -it <pod> -- /bin/sh`
+- Generate a yaml file for a pod: `kubectl run redis --image=redis -o yaml --dry-run=client`
+- Port forward: `kubectl port-forward POD [LOCAL_PORT:]REMOTE_PORT`
 
 
 ### Replication Controller
 
-List replication controllers: `kubectl get replicationController`
+- List replication controllers: `kubectl get replicationController`
 
 
 ### Replicasets
 
-List created replica-sets: `kubectl get replicaset`
-
-Replace or update replica-set: `kubectl replace -f file.yml`
-
-Edit a replica-set: `kubectl edit replicaset <replicaset name>`
-
-Force replace a replica-set: `kubectl replace -f file.yml --force`
-
-Scale a replica-set: `kubectl scale replicaset <replicaset name> --replicas=3`
+- List created replica-sets: `kubectl get replicaset`
+- Replace or update replica-set: `kubectl replace -f file.yml`
+- Edit a replica-set: `kubectl edit replicaset <replicaset name>`
+- Force replace a replica-set: `kubectl replace -f file.yml --force`
+- Scale a replica-set: `kubectl scale replicaset <replicaset name> --replicas=3`
 
 ### Deployments
 
-List created deployments: `kubectl get deployments`
+A deployment is an abstraction for the pods. It allows you to have extra functionality and control on top of the pods regarding the amount of pod instances to run and their update strategy. 
+
+The deployments can have two deployment strategies: recreate and rolling update (default). 
+
+- Create a deployment: `kubectl create -f deployment.yml --record `
+- To roll-out/update a deployment, update yml file and `kubectl apply -f deployment.yml --record`
+- Update image name for a container: `kubectl set image deployment/<deployment_name> <container_name>=<image_name>`
+- List created deployments: `kubectl get deployments`
+- Check status of roll-outs of a deployment: `kubectl rollout status deployment/<deployment_name>`
+- View the history/revisions of a roll-out: `kubectl rollout history deployment/<deployment_name>`
+- Roll-back a deployment: `kubectl rollout undo deployment/<deployment_name> --record`
+
+
+### Kubernetes Services
+
+It is a kubernetes contruct that defines how the pods can be accessed within the cluster or outside the cluster. The service uses the pod labels to route the ingress traffic to the appropriate pods. If mutiple pods match the labels used from the service selector then the traffic is load balanced between the different pods. 
+
+The creation of the service will generate endpoints in the cluster. 
+
+- View endpoints created from the service: `kubectl get endpoints`. 
+
+If no endpoints are listed under a service then the pods will not be able to access the service. 
+
+Following are the different types of services: 
+
+- **ClusterIP**: exposes the service on an internal cluster IP. This is typically used for services only accessed by other workloads running within the cluster.
+- **HeadLess**: this is useful to provide a service name which resolves to the pod IPs for direct pod-pod communications.
+- **NodePort**: exposes a service on each worker nodes IP on a static port. 
+- **LoadBalancer**: Exposes the service externally using a cloud provider’s load balancer.
+- **ExternalName**: Maps the service to an external name via a DNS provider returning a CNAME record. 
+
+Get lis of services: `kubectl get svc -o wide`
+
+
+# Tips
+- You can append `-w` at you `kubectl` commands to watch/follow the output. 
+- Use netshoot container to learn/troubleshoot networking. Exec into it as below: 
+```
+kubectl exec -it <netshoot_pod> -c netshoot -- /bin/sh
+```
+
+
+# Minikube
+
+- Spin up a 3 node minikube cluster: `minikube start --nodes 3`
+- Spin up a cluster with Flannel as CNI: `minikube start --nodes 3 --cni flannel`
+- Check cluster status: `minikube status`
+- List minikube addons: `minikube addons list`
+- Delete a local cluster: `minikube delete`
 
 
 

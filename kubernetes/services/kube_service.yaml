@@ -1,0 +1,16 @@
+# Kubernetes Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp
+  labels: # optional labels for the service
+    app: webapp
+spec: 
+  type: ClusterIP # ClusterIP is the default type
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: http
+  selector: # the pod labels to match
+    app: webapp
