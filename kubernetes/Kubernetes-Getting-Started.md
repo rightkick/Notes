@@ -2,6 +2,7 @@
 
 Kubernetes is a container orchestrator solution. It is deployed as a cluster of a single or multiple nodes. The nodes are of two types: master nodes which run control plane processes and worker nodes which run workload processes. The workload is a set of pods that are deployed from the user.
 
+
 ## Control plane components 
 - **master nodes**: these are physical or virtual nodes that run the control plane processes. It can be a single node or multiple nodes to provide HA. Master nodes can act also as a worker node, usually when you need to go with a single node cluster. 
 - **Kubernetes API server**: The API server is the front end for the Kubernetes control plane. It is a component (pod) that provides all the API needed to run and manage the cluster. The name of this pod is kube-apiserver.  
@@ -10,11 +11,13 @@ Kubernetes is a container orchestrator solution. It is deployed as a cluster of 
 - **KV store**: kubernetes includes a key-value store that keeps the state of the cluster. Usually it is etcd but it can be any other supported technology. 
 - **cloud controller manager**: optional component to provide integration with cloud APIs so as to manage clusters hosted at cloud providers. 
 
+
 ## Data plane components
 - **worker nodes**: these are physical or virtual nodes that run workload processes (pods). 
 - **kubelet**: agent that enables the control plane to manage the node. It makes sure that the containers run in the pods and provides health info at the control plane by interacting with the kube-apiserver that runs at the master nodes. 
 - **kube-proxy**: is a network proxy that runs on each node in the cluster and is responsible to manage network aspects related to the pods. It can use the OS available netfilter functions. 
 - **container runtime**: a foundamental component that makes teh nodes able to run containers. Several container runtime options are supported, which implement the Kubernetes CRI, such as containerd, CRIO, rkt, docker, etc. 
+
 
 ## Additional kubernetes components
 
@@ -24,6 +27,17 @@ Kubernetes is a container orchestrator solution. It is deployed as a cluster of 
 - **Storage**: CSI plugins to provide persistent storage to the cluster. 
 - **Networking**: CNI plugins to provide advanced networking features. 
 - **Virtual Machines**: you can install kubevirt so as to manage VMs within Kubernetes. 
+
+
+# Types of kubernetes objects
+
+- Pod
+- Replicaset
+- Deployment
+- StatefulSet
+- Jobs
+- CronJobs
+
 
 # Kubernetes flavors: 
 
@@ -85,6 +99,10 @@ Get list of nodes: `kubectl get nodes -o wide`
 
 Get namespaces: `kubectl get namespaces`
 
+Get all objects: `kubectl get all`
+
+Create an object: `kubectl create -f file.yml`
+
 
 ## Pods
 
@@ -115,6 +133,10 @@ Edit a replica-set: `kubectl edit replicaset <replicaset name>`
 Force replace a replica-set: `kubectl replace -f file.yml --force`
 
 Scale a replica-set: `kubectl scale replicaset <replicaset name> --replicas=3`
+
+### Deployments
+
+List created deployments: `kubectl get deployments`
 
 
 
