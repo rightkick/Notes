@@ -22,7 +22,7 @@ Following is the architecture with the main components and their interactions. A
 ### Data plane components
 - **worker nodes**: these are physical or virtual nodes that run workload processes (pods). 
 - **kubelet**: agent that enables the control plane to manage the node. It makes sure that the containers run in the pods and provides health info at the control plane by interacting with the kube-apiserver that runs at the master nodes. 
-- **kube-proxy**: is a network proxy that runs on each node in the cluster and is responsible to manage network aspects related to the pods. It can use the OS available netfilter functions. 
+- **kube-proxy**: is a network proxy that runs on each node in the cluster and is responsible to manage network aspects related to the pods. It usually uses the OS available netfilter functions to apply the iptables rules needed to redirect the traffic. 
 - **container runtime**: a foundamental component that makes teh nodes able to run containers. Several container runtime options are supported, which implement the Kubernetes CRI, such as containerd, CRIO, rkt, docker, etc. 
 
 
@@ -67,16 +67,22 @@ The kubernetes network model is implemented from the container runtime (CRI) usi
 - pods can communicate with all other pods on any other node without NAT
 - agents on a node (e.g. system daemons, kubelet) can communicate with all pods on that node
 
-On multi-node cluster setups kubernetes will use virtual overlay networking (VXLAN, GENEVE, BGP, etc) to provide a flat network where all kubernetes resources will use to reach each other. 
+CNI utilizes a plugin architecture to configure the Kubernetes cluster’s networking. The CNI plugin is responsible for creating and configuring the network interface for each container. When a container is created, the Kubernetes kubelet calls the CNI plugin to set up the network interface, assign an IP address, and add it to the Kubernetes network.
 
-Kubernetes includes also DNS funtions (usually through CoreDNS) so as to automatically assign DNS names to pods and services. 
+The CNI plugin also interacts with the IP Address Management (IPAM) plugin to allocate IP addresses to containers. This involves managing the pool of available IP addresses and assigning them as needed. Once the network interface is established, the kubelet starts the container, enabling it to communicate with other containers on the Kubernetes network.
 
-Kubernetes provides also the option to configure network policies so as to control or limit the communication between the resources. 
+On multi-node cluster setups kubernetes will use virtual overlay networking (VXLAN, Geneve, BGP, GRE, IP-IP, etc) to provide a flat network where all kubernetes resources will use to reach each other. 
+
+Within the realm of CNI, networks can be instantiated using two primary models: encapsulated and unencapsulated. The encapsulated (overlay) model is based on technologies such as VXLAN, Geneve and IPsec. It encapsulates L2 networking on top L3. The unencapsulated (underlay) model extends a Layer 3 network to facilitate the routing of packets among containers and usually is based on BGP.
 
 Kubernetes will allocate different non-overlapping IP address ranges to pods, services and nodes. IPV4, IPV6 or dual stack (IPV4 and IPV6) are supported. The IP address allocation is split as below:
 - The network plugin (CNI) is configured to assign IP addresses to Pods.
 - The kube-apiserver is configured to assign IP addresses to Services.
 - The kubelet or the cloud-controller-manager is configured to assign IP addresses to Nodes.
+
+Kubernetes includes also DNS funtions (usually through CoreDNS) so as to automatically assign DNS names to pods and services. 
+
+Kubernetes provides also the option to configure network policies for network traffic enforcement. 
 
 
 # Kubernetes flavors: 
@@ -118,8 +124,11 @@ Apart from the vanilla option, there are several other Kubernetes distributions 
 - Kubevirt
 
 ### CNI
+Some famious CNI plugins are the following:
+
 - Calico
 - Cilium
+- Weave Net
 - Cargo
 - Flannel
 - Kube-OVN
@@ -155,6 +164,7 @@ A pod is a set of one or more containers scheduled on the same physical or virtu
 - Generate a yaml file for a pod: `kubectl run redis --image=redis -o yaml --dry-run=client`
 - Port forward: `kubectl port-forward POD [LOCAL_PORT:]REMOTE_PORT`
 
+Each pod inclides at least one app container and a special *pause* container which is there to provide a shared network stack to the containers of the same pod. 
 
 ### Replication Controller
 
