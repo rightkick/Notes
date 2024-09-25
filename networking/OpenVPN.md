@@ -101,7 +101,7 @@ This protects from:
  - SSL/TLS handshake initiations from unauthorized machines.
  - Any eventual buffer overflow vulnerabilities in the SSL/TLS implementation.
 ```
-openvpn --genkey --secret /etc/openvpn/server/server-keys/ta.key
+openvpn --genkey secret /etc/openvpn/server/server-keys/ta.key
 ```
 
 ### Generate crl key:
@@ -197,7 +197,7 @@ reneg-sec 86400
 passtos
 
 # Management Interface
-management 127.0.0.1 2794
+management 127.0.0.1 6789
 
 #revokation list
 crl-verify server-keys/crl.pem
