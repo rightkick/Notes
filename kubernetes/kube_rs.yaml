@@ -1,0 +1,26 @@
+# ReplicaSet definition
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: myapp-rs
+  labels:
+    app: my-app
+    type: front-end
+
+spec:
+  template:
+
+    metadata:
+      name: nginx-custom2
+      labels:
+        env: dev
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+
+  replicas: 2
+  selector:
+    matchLabels:
+      env: dev
+    
