@@ -2,6 +2,8 @@
 
 Kubernetes is a container orchestrator solution. It is deployed as a cluster of a single or multiple nodes. The nodes are of two types: master nodes which run control plane processes and worker nodes which run workload processes. The workload is a set of pods that are deployed from the user.
 
+## Architecture
+![image](https://github.com/rightkick/Notes/assets/15179132/b5d553d6-cc6a-4207-9e38-6e36cdff5da0)
 
 ## Control plane components 
 - **master nodes**: these are physical or virtual nodes that run the control plane processes. It can be a single node or multiple nodes to provide HA. Master nodes can act also as a worker node, usually when you need to go with a single node cluster. 
