@@ -391,15 +391,15 @@ Note that if the backing files show a correct status of the listed snapshots, th
 update images set imagestatus='1' where vm_snapshot_id='818c46ff-4c32-496d-a4ca-12459e4ca917';
 ```
 
-5. Delete the broken snapshot from the snapshots table.
+5. Delete the broken snapshot from the snapshots table:
 ```
 engine# delete from snapshots where snapshot_id='818c46ff-4c32-496d-a4ca-12459e4ca917';
 DELETE 1
 ```
 
-6. Delete the associated image to the broken snapshots.
+6. Delete the associated image of the broken snapshot:
 ```
-engine=# delete from images where image_guid='1e75898c-9790-4163-ad41-847cfe84db40';
+engine=# delete from images where vm_snapshot_id='818c46ff-4c32-496d-a4ca-12459e4ca917';
 DELETE 1
 ```
 At this time, the snapshot is no longer shown on the 'Snapshots' tab of the VM.
