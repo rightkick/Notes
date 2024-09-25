@@ -5,7 +5,7 @@ The file system is distributed between the participating nodes which are referre
 
 Generally the gluster bricks can be placed on top any file system that supports extended attributes. It is recommneded that the bricks reside on top of different partition, LVM volumes or separate disk for better performance and resiliency. 
 
-I have had great success using the mirrored approach as a data store for virtualization solutions such as oVirt, custom KVM or Proxmox, using the high performant libgfapi access mode which is supported from libvirt.
+I have had great success using the mirrored approach as a data store for virtualization solutions such as oVirt, KVM and Proxmox, using the high performant libgfapi access mode which is supported from libvirt. I have used also replicated volumes as a DB store in order to provide an alternative MariaDB HA solution through pacemaker/corosync. 
 
 In case you are going into production take note that you need to make sure you meet some requirements, such as at least three nodes so as to meet quorum. This can be a set of three identical servers or 2 high-end servers + 1 low-end one which will act as an arbiter for the quorum requirement. This helps to avoid split brains which can easily occur when you go with a 2 node setup. 
 
@@ -49,6 +49,8 @@ gluster volume create iso replica 3 gluster0:/mnt/gluster/iso/brick gluster1:/mn
 ```
 
 ## Set gluster volumes attributes
+These volume attributes are recommended from the oVirt project so as to run VM workloads on top the glusterfs volumes. Glusterfs supports many attributes which you can investigate at the docs and apply them as needed. 
+
 ```
 gluster volume set vms group virt
 gluster volume set vms network.ping-timeout 30
