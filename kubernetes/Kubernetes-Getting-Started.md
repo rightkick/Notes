@@ -94,9 +94,20 @@ Scale a replica-set: `kubectl scale replicaset <replicaset name> --replicas=3`
 - Rancher
 - CloudStack
 - Kosmotron
+- Cluster API
 
 ## Storage
 - Longhorn
 - OpenEBS
 - Rook
 - SeaweedFS
+
+## Virtualization
+- Kubevirt
+
+## CNI
+- Calico
+- Cilium
+- Cargo
+- Flannel
+- Kube-OVN
