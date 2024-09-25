@@ -1,0 +1,17 @@
+[Unit]
+Description=zram swap
+
+Requires=local-fs.target
+After=local-fs.target
+
+[Service]
+Type=forking
+ExecStart=/usr/local/bin/zram start
+ExecStop=/usr/local/bin/zram stop
+TimeoutSec=0
+StandardOutput=tty
+RemainAfterExit=yes
+SysVStartPriority=99
+
+[Install]
+WantedBy=multi-user.target 
