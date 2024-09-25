@@ -62,7 +62,7 @@ Generate a yaml file for a pod: `kubectl run redis --image=redis -o yaml --dry-r
 Port forward: `kubectl port-forward POD [LOCAL_PORT:]REMOTE_PORT`
 
 
-### Replication COntroller
+### Replication Controller
 
 List replication controllers: `kubectl get replicationController`
 
