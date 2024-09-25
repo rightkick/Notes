@@ -96,3 +96,7 @@ You can save the topology or export it as a python script. You can also launch t
 ## Running your own scripted topologies
 
 You can write your own python script that define a custom topology. You then instantiate them within the root console by invoking the script with `sudo -E python custom.py`
+
+## VRF in Mininet
+
+You may need to add `systemd.legacy_systemd_cgroup_controller=1` kernel boot parameter at Mininet VM so as to be able to test VRF, otherwise you may encounter the error `Failed to setup vrf cgroup2 directory` when attempting to run commands within a VRF. 
