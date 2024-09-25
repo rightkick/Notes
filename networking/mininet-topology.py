@@ -38,7 +38,7 @@ def myNetwork():
     info( '*** Post configure switches and hosts\n')
     #net['h1'].cmd('ip link set dev h1-eth0 down')
 
-    info( '*** Enable NAT\n')
+    info( '*** Enable NAT\n') # Optional, only in case you need Internet access from the host nodes. 
     net.addNAT().configDefault()
 
     info( '*** Starting network\n')
