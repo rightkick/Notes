@@ -38,6 +38,43 @@ Apart from the vanilla option, there are several other Kubernetes distributions 
 - **Openshift**: enterprise version provided form Redhat (OKD is the OSS upstream)
 
 
+# Useful Kubernetes tools: 
+
+### CI/CD
+- ArgoCD
+
+### Cluster manager
+- k9s
+- Lens
+- Kubeshark
+- kubeadm
+- kubespray
+- Rancher
+- CloudStack
+- Kosmotron
+- Cluster API
+
+## Storage
+- Longhorn
+- OpenEBS
+- Rook
+- SeaweedFS
+
+## Virtualization
+- Kubevirt
+
+## CNI
+- Calico
+- Cilium
+- Cargo
+- Flannel
+- Kube-OVN
+
+## Playground for practise
+- https://labs.play-with-k8s.com/
+
+
+
 # Cheat Sheet
 
 ### Cluster
@@ -80,34 +117,4 @@ Force replace a replica-set: `kubectl replace -f file.yml --force`
 Scale a replica-set: `kubectl scale replicaset <replicaset name> --replicas=3`
 
 
-# Useful Kubernetes tools: 
 
-### CI/CD
-- ArgoCD
-
-### Cluster manager
-- k9s
-- Lens
-- Kubeshark
-- kubeadm
-- kubespray
-- Rancher
-- CloudStack
-- Kosmotron
-- Cluster API
-
-## Storage
-- Longhorn
-- OpenEBS
-- Rook
-- SeaweedFS
-
-## Virtualization
-- Kubevirt
-
-## CNI
-- Calico
-- Cilium
-- Cargo
-- Flannel
-- Kube-OVN
