@@ -39,7 +39,7 @@ var_1="value1"
 var_2="value2"
 ```
 
-Files that are named as `terraform.tfvars`, `terraform.tfvars.json`, `*.auto.tfvars`, `*.auto.tfvars`.json are automatically loaded from terraform. Files that do not follow this rule should be passed at command line using `-var-file` falg. Example: `terraform apply -var-file variables.tfvars`. 
+Files that are named as `terraform.tfvars`, `terraform.tfvars.json`, `*.auto.tfvars`, `*.auto.tfvars`.json are automatically loaded from terraform. Files that do not follow this rule should be passed at command line using `-var-file` flag. Example: `terraform apply -var-file variables.tfvars`. 
 
 There are different ways to define variables (listed in ascending precedence): 
 - export env variables using `TF_VAR_<var_name>` (lower precedence)
