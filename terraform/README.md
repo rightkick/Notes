@@ -1,7 +1,10 @@
 # Terraform Notes
 
+## Intention
+These notes are a high level introduction to Terraform taken during my study of the tool. It is not meant to be used as a reference since many details are not included here. 
+
 ## Introduction
-Terraform uses HCL to define infrastructure as code. It uses different providers that abstract the interactions with the infrastructure they configure. The providers include different resource types that can be used to define the desired state for the target infra.
+Terraform uses HCL to define infrastructure as code. It uses different providers that abstract the interactions with the infrastructure they configure. The providers include different resource types that can be used to define the desired state for the target infra. Terraform follows an immutable approach and by default it deletes the resources prior to creating a new version of them. 
 
 ## Steps to run Terraform
 - Create `yourfilename.tf` file
@@ -10,7 +13,7 @@ Terraform uses HCL to define infrastructure as code. It uses different providers
 - Apply the changes by running `terraform apply`
 
 ## Configuration
-You can have several .tf files within your root config directory so as to orginize your code. 
+You can have several .tf files within your root config directory so as to organize your code. 
 Usually the files are split as follows: 
 - `main.tf`
 - `variables.tf`
@@ -21,7 +24,7 @@ You can use multiple providers and resource types within a configuration file.
 Whenever you change the providers defined within a configuration file you need to run `terraform init` in order to initialize the providers required. 
 
 ## Providers
-Terraform relies on plugins called providers which bundle a set of functionality arround cloud solutions or other solutions that expose an API. There are different types of providers such as official, partner and community providers. The providers are usually a go binary that is served through a registry and is locally downloaded when used. One can use a custom shared mirror to reduce traffic while using providers with other users.  
+Terraform relies on plugins called providers which bundle a set of functionality around cloud solutions or other solutions that expose an API. There are different types of providers such as official, partner and community providers. The providers are usually a go binary that is served through a registry and is locally downloaded when used. One can use a custom shared mirror to reduce traffic while using providers with other users.  
 
 ## Variables
 Usually variables are grouped into a file named `variables.tf`. Example: 
@@ -64,7 +67,39 @@ It keeps the state of the deployed infrastructure. The state is stored in a loca
 - `terraform show`: prints the current state of the infrastructure. 
 - `terraform providers`: prints the list of used providers.
 - `terraform output`: print the values of output variables.
-- `terraform refresh`: it refreshes local state with the actual infra state. Usefult to incorporate manual changes into the state. This command is run automatically from `terraform plan` or `terraform apply`. 
-- `terraform graph`: print resource dependencies in a dot format. The graph can be visualized with graphviz application or similar. Example: `terraform graph | dot -Tsvg > graph.svg`
+- `terraform refresh`: it refreshes local state with the actual infra state. Useful to incorporate manual changes into the state. This command is run automatically from `terraform plan` or `terraform apply`. 
+- `terraform graph`: print resource dependencies in a dot format. The graph can be visualized with graphviz application or similar. Example: `terraform graph | dot -Tsvg > graph.svg`.
+
+## Lifecycle management
+One can affect how terraform handles the lifecycle of resources when updating the infrastructure through the use of lifecycle rules. Example:
+```
+resource `local_file` `test_file`{
+    filename = "test_file.txt"
+    contenct = "moo"
+    file_permissions = "0700"
+
+    lifecycle {
+        create_before_destroy = true
+    }
+}
+```
+
+Other useful lifecycle rules: 
+- `prevent_destroy`: protects a resource from accidental deletion
+- `ignore_changes`: terraform will ignore changes manually introduced to a specific resource attribute. Subsequent terraform applies will not change the subject resource. 
+
+## Data sources
+Data sources or data resources are used to retrieve data from externally defined resources. These resources may be already provisioned or created through other IaC tools such as Ansible or other and can be of any type supported from Terraform. Example: 
+```
+resource "local_file" "dog" {
+    filename = "/tmp/pets.txt"
+    content = data.local_file.dog.content
+}
+
+data "local_file" "dog" {
+    filename="/root/dog.txt"
+}
+```
+
 
 
