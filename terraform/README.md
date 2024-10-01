@@ -24,7 +24,21 @@ You can use multiple providers and resource types within a configuration file.
 Whenever you change the providers defined within a configuration file you need to run `terraform init` in order to initialize the providers required. 
 
 ## Providers
-Terraform relies on plugins called providers which bundle a set of functionality around cloud solutions or other solutions that expose an API. There are different types of providers such as official, partner and community providers. The providers are usually a go binary that is served through a registry and is locally downloaded when used. One can use a custom shared mirror to reduce traffic while using providers with other users.  
+Terraform relies on plugins called providers which bundle a set of functionality around cloud solutions or other solutions that expose an API. There are different types of providers such as official, partner and community providers. The providers are usually a go binary that is served through a registry and is locally downloaded when used. One can use a custom shared mirror to reduce traffic while using providers with other users. The terraform providers are downloaded when running `terraform init` and by default the latest version is downloaded whenever this command is run. As a best practice it is recommended to pin the version of the required providers. 
+
+To pin a specific provider version you do as below: 
+```
+terraform {
+  required_providers {
+    local = {
+      source = "hashicorp/local"
+      version = "2.5.0"
+    }
+  }
+}
+```
+
+Apart form specifying a specific version of a provider you can define also a range of versions or use negative expression to avoid a specific version, using symbols such as `!=, <, >, <=, ~`. 
 
 ## Variables
 Usually variables are grouped into a file named `variables.tf`. Example: 
@@ -60,7 +74,7 @@ The variables can be for **input** or **output** purposes. The input variables a
 It keeps the state of the deployed infrastructure. The state is stored in a local file named `terraform.tfstate` and this file should not be version controlled in git since it may include sensistive information. When working with a team it is best stored in a central S3 bucket or shared storage. 
 
 ## Terraform commands
-- `terraform init`: initialize the project. It will download andy providers also locally to be used when applying the code. 
+- `terraform init`: initialize the project. It will download any providers also locally to be used when applying the code.
 - `terraform plan`: shows the planned execution. It is similar to a dry-run apply. 
 - `terraform validate`: validate that your configuration is correct.  
 - `terraform fmt`: formats the configuration for improved readability. 
