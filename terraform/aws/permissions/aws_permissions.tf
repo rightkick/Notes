@@ -18,10 +18,6 @@ resource "aws_iam_user_policy_attachment" "test-user-s3-access" {
     policy_arn = aws_iam_policy.S3-bucket-read.arn
 }
 
-# Create an EC2 instance
-
-# Create an S3 bucket
-
 # Create a role for EC2->S3
 
 # Attach role to EC2
