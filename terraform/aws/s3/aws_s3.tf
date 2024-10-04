@@ -19,5 +19,3 @@ resource "aws_s3_object" "s3-test-file" {
   source = "s3-data.txt"
 }
 
-# Create an EC2 instance
-
