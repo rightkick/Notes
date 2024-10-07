@@ -71,7 +71,9 @@ You should be aware of the variable definition precedence that terraform follows
 The variables can be for **input** or **output** purposes. The input variables are used to feed configuration files while the output variables can be used for both feeding configuration files and displaying their value in the console.
 
 ## Terraform state
-It keeps the state of the deployed infrastructure. The state is stored in a local file named `terraform.tfstate` and this file should not be version controlled in git since it may include sensistive information. When working with a team it is best stored in a central S3 bucket or shared storage.
+It keeps the state of the deployed infrastructure. The state is stored in a local file named `terraform.tfstate` and this file should not be version controlled in git since it may include sensitive information. When working with a team it is best stored in a central S3 bucket or shared storage with state locking enabled so as to avoid state corruption. State locking is usually done from a DB backend (dynamodb or other). 
+
+You can manipulate the terraform state with `terraform state` commands. For example, in order to rename a resource without recreating it, you can rename it in the state file, using `terraform state mv ...`, and then manually rename the resource in the configuration file also. In this way `terraform apply` will not detect any changes. 
 
 ## Terraform commands
 - `terraform init`: initialize the project. It will download any providers also locally to be used when applying the code.
@@ -83,6 +85,8 @@ It keeps the state of the deployed infrastructure. The state is stored in a loca
 - `terraform output`: print the values of output variables.
 - `terraform refresh`: it refreshes local state with the actual infra state. Useful to incorporate manual changes into the state. This command is run automatically from `terraform plan` or `terraform apply`.
 - `terraform graph`: print resource dependencies in a dot format. The graph can be visualized with graphviz application or similar. Example: `terraform graph | dot -Tsvg > graph.svg`.
+- `terraform state list`: list the configured resources, as recorded from the state file. 
+- `terraform state show <resource>`: show attributes of a matching resource, as recorded from the state file.
 
 ## Lifecycle management
 One can affect how terraform handles the lifecycle of resources when updating the infrastructure through the use of lifecycle rules. Example:
@@ -117,7 +121,22 @@ data "local_file" "dog" {
 
 ## Working with AWS
 AWS publishes an AWS provider that can be used to interact with AWS. You can configure your local AWS cli so as terraform to be able to authenticate with AWS and interact with it.
+There are plenty of AWS resources types that you can use to define any type of AWS resource such as EC2, S3, etc. 
 
+## Terraform Provisioners
+Provisioners are used to run a set of tasks after the resource has been deployed (create-time provisioners) or destroyed (destroy-time provisioners). These tasks can be run remotely or locally at the deployed resource. Failure of a provisioner will cause `terraform apply` to fail by default. This behavior can be adjusted (`on_failure = continue`) so as the `terraform apply` to not fail in such cases. Resources created while the provisioner is in failed state are marked as tainted.  
 
+You can use `local-exec` provisioner to run ansible playbooks. This is useful if you need to do a lot fo configuration tasks that are not well handled from scripting languages. 
+
+Example: 
+```
+provisioner "local-exec" {
+  command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i '${self.ipv4_address}',     --private-key ${var.pvt_key} -e 'pub_key=${var.pub_key}' apache-install.yml"
+}
+```
+
+Provisioners are defined within a resource thus they can use the `self` construct to refer to the resource. 
+
+As a best practice, provisioners should be used as a last resort tool and one should try to avoid them if the desired outcome can be implemented with available resource type attributes such as user data. The reason of avoiding provisioners is that they introduce complexity and they do not follow the declarative model. 
 
 
