@@ -1,19 +1,23 @@
 # Terraform Notes
 
 ## Intention
-These notes are a high level introduction to Terraform taken during my study of the tool. It is not meant to be used as a reference since many details are not included here.
+These notes are a high level introduction to Terraform taken during my study of the tool. It is not meant to be used as a reference since many details are not included here but it should be still useful for a quick and dirty introduction to get a good feeling and understanding of the tool. 
+
 
 ## Introduction
 Terraform uses HCL to define infrastructure as code. It uses different providers that abstract the interactions with the infrastructure they configure. The providers include different resource types that can be used to define the desired state for the target infra. Terraform follows an immutable approach and by default it deletes the resources prior to creating a new version of them.
 
+
 ## Steps to run Terraform
 - Create `yourfilename.tf` file
+- Optionally validate your configuration file: `terraform validate`
 - Run `terraform init`
 - Review execution plan running `terraform plan`
 - Apply the changes by running `terraform apply`
 
+
 ## Configuration
-You can have several .tf files within your root config directory so as to organize your code.
+You can have several `.tf` files within your root config directory so as to organize your code.
 Usually the files are split as follows:
 - `main.tf`
 - `variables.tf`
@@ -23,10 +27,11 @@ Usually the files are split as follows:
 You can use multiple providers and resource types within a configuration file.
 Whenever you change the providers defined within a configuration file you need to run `terraform init` in order to initialize the providers required.
 
-## Providers
-Terraform relies on plugins called providers which bundle a set of functionality around cloud solutions or other solutions that expose an API. There are different types of providers such as official, partner and community providers. The providers are usually a go binary that is served through a registry and is locally downloaded when used. One can use a custom shared mirror to reduce traffic while using providers with other users. The terraform providers are downloaded when running `terraform init` and by default the latest version is downloaded whenever this command is run. As a best practice it is recommended to pin the version of the required providers.
 
-To pin a specific provider version you do as below:
+## Providers
+Terraform relies on plugins called providers which bundle a set of functionality around cloud solutions or other solutions that expose an API. There are different types of providers such as **official**, **partner** and **community** providers. The providers are usually a go binary that is served through a registry and is by default locally downloaded when used. One can use a custom shared mirror to reduce traffic and share such providers with other users. The Terraform providers are downloaded when running `terraform init` and by default the latest version is downloaded whenever this command is run. As a best practice it is recommended to pin the version of the required providers.
+
+To pin a specific provider to a specific version you define it as follows:
 ```
 terraform {
   required_providers {
@@ -40,6 +45,7 @@ terraform {
 
 Apart form specifying a specific version of a provider you can define also a range of versions or use negative expression to avoid a specific version, using symbols such as `!=, <, >, <=, ~`.
 
+
 ## Variables
 Usually variables are grouped into a file named `variables.tf`. Example:
 ```
@@ -50,7 +56,7 @@ variable <var_name> {
 }
 ```
 
-Within a terraform configuration file, you can reference the variables's value following a syntax similar to json paths such as `var.<var_name>.attribute`.
+Within a Terraform configuration file, you can reference the variables's value following a syntax similar to json paths such as `var.<var_name>.attribute`.
 
 You can have vars defined also in a file ending in `.tfvars` or `.tfvars.json`. Example `terraform.tfvars`:
 ```
@@ -58,7 +64,7 @@ var_1="value1"
 var_2="value2"
 ```
 
-Files that are named as `terraform.tfvars`, `terraform.tfvars.json`, `*.auto.tfvars`, `*.auto.tfvars`.json are automatically loaded from terraform. Files that do not follow this rule should be passed at command line using `-var-file` flag. Example: `terraform apply -var-file variables.tfvars`.
+Files that are named as `terraform.tfvars`, `terraform.tfvars.json`, `*.auto.tfvars`, `*.auto.tfvars`.json are automatically loaded from Terraform. Files that do not follow this rule should be passed at command line using `-var-file` flag. Example: `terraform apply -var-file variables.tfvars`.
 
 There are different ways to define variables (listed in ascending precedence):
 - export env variables using `TF_VAR_<var_name>` (lower precedence)
@@ -66,14 +72,16 @@ There are different ways to define variables (listed in ascending precedence):
 - define variables in `variables.auto.tfvars`
 - pass variables through command line with `-var-file` (higher precedence)
 
-You should be aware of the variable definition precedence that terraform follows, in order to understand the final value that the variables will have in case there are different conflicting definitions.
+You should be aware of the variable definition precedence that Terraform follows, in order to understand the final value that the variables will have in case there are different conflicting definitions.
 
 The variables can be for **input** or **output** purposes. The input variables are used to feed configuration files while the output variables can be used for both feeding configuration files and displaying their value in the console.
 
-## Terraform state
-It keeps the state of the deployed infrastructure. The state is stored in a local file named `terraform.tfstate` and this file should not be version controlled in git since it may include sensitive information. When working with a team it is best stored in a central S3 bucket or shared storage with state locking enabled so as to avoid state corruption. State locking is usually done from a DB backend (dynamodb or other). 
 
-You can manipulate the terraform state with `terraform state` commands. For example, in order to rename a resource without recreating it, you can rename it in the state file, using `terraform state mv ...`, and then manually rename the resource in the configuration file also. In this way `terraform apply` will not detect any changes. 
+## Terraform state
+Terraform state keeps the state of the deployed infrastructure. The state is stored in a local file named `terraform.tfstate` and this file should not be version controlled since it may include sensitive information. When working with a team it is best stored in a remote backend such as a central S3 bucket or shared storage with state locking enabled so as to avoid state corruption. State locking is usually done from a DB backend (dynamodb or other). 
+
+You can manipulate the Terraform state with `terraform state` commands. For example, in order to rename a resource without recreating it, you can rename it in the state file, using `terraform state mv ...`, and then manually rename the resource in the configuration file also. In this way `terraform apply` will not detect any changes. 
+
 
 ## Terraform commands
 - `terraform init`: initialize the project. It will download any providers also locally to be used when applying the code.
@@ -88,8 +96,9 @@ You can manipulate the terraform state with `terraform state` commands. For exam
 - `terraform state list`: list the configured resources, as recorded from the state file. 
 - `terraform state show <resource>`: show attributes of a matching resource, as recorded from the state file.
 
+
 ## Lifecycle management
-One can affect how terraform handles the lifecycle of resources when updating the infrastructure through the use of lifecycle rules. Example:
+One can affect how Terraform handles the lifecycle of resources when updating the infrastructure through the use of lifecycle rules. Example:
 ```
 resource `local_file` `test_file`{
     filename = "test_file.txt"
@@ -104,7 +113,8 @@ resource `local_file` `test_file`{
 
 Other useful lifecycle rules:
 - `prevent_destroy`: protects a resource from accidental deletion
-- `ignore_changes`: terraform will ignore changes manually introduced to a specific resource attribute. Subsequent terraform applies will not change the subject resource.
+- `ignore_changes`: Terraform will ignore changes manually introduced to a specific resource attribute. Subsequent terraform applies will not change the subject resource.
+
 
 ## Data sources
 Data sources or data resources are used to retrieve data from externally defined resources. These resources may be already provisioned or created through other IaC tools such as Ansible or other and can be of any type supported from Terraform. Example:
@@ -119,9 +129,6 @@ data "local_file" "dog" {
 }
 ```
 
-## Working with AWS
-AWS publishes an AWS provider that can be used to interact with AWS. You can configure your local AWS cli so as terraform to be able to authenticate with AWS and interact with it.
-There are plenty of AWS resources types that you can use to define any type of AWS resource such as EC2, S3, etc. 
 
 ## Terraform Provisioners
 Provisioners are used to run a set of tasks after the resource has been deployed (create-time provisioners) or destroyed (destroy-time provisioners). These tasks can be run remotely or locally at the deployed resource. Failure of a provisioner will cause `terraform apply` to fail by default. This behavior can be adjusted (`on_failure = continue`) so as the `terraform apply` to not fail in such cases. Resources created while the provisioner is in failed state are marked as tainted.  
@@ -137,6 +144,42 @@ provisioner "local-exec" {
 
 Provisioners are defined within a resource thus they can use the `self` construct to refer to the resource. 
 
-As a best practice, provisioners should be used as a last resort tool and one should try to avoid them if the desired outcome can be implemented with available resource type attributes such as user data. The reason of avoiding provisioners is that they introduce complexity and they do not follow the declarative model. 
+As a best practice, provisioners should be used as a last resort tool and one should try to avoid them if the desired outcome can be implemented with available resource type attributes such as user data. The reason of avoiding provisioners is that they introduce complexity and they do not follow the declarative model.
+
+
+## Tainted resources
+When a failure is detected during a `terraform apply`, the affected resources are marked as **tainted**. This means that at a subsequent `terraform apply` the resources will be recreated to address the taint. 
+The taint mechanism is a means also to force the recreation of a resource by marking it as tainted with `terraform taint <resource>`. One can also untaint a resource with `terraform untaint <resource>`.
+
+
+## Debugging Terraform
+You can enable different levels of log verbosity for Terraform using the `TF_LOG` environment variable. 
+
+The available levels are the following, listed in increased verbosity order:
+- ERROR
+- WARNING
+- INFO
+- DEBUG
+- TRACE
+
+To set the level you would do: `export TF_LOG=DEBUG`. To redirect the logs to a specific file you can do `export TF_LOG_PATH=/tmp/tf.log`. You can unset the previous with `unset TF_LOG_PATH`.
+
+
+## Terraform import
+You can bring resources under Terraform management by importing them. This is useful when such resources are already provisioned through other tools or manually and you need to update your terraform state about their existence. 
+
+In order to import resources you need first to define them into the Terraform configuration file. Terraform, as of this writing, does not support the automatic definition of the resources during import (check it out, it might have changed by now). One easy way to import a resource is to define a basic entry of the resource that you need to import without defining any attributes in the configuration file, import the resource with `terraform import <resource name> <resource ID>`, inspect the resource details from Terraform state (`terraform state show <resource>`) and then populate the resource attributes in the Terraform configuration file. You need to make sure then that Terraform will not affect the imported resources by running `terraform plan`. 
+
+Example where we import an EC2 instance using the instance ID: 
+```
+terraform import aws_instance.myvm i-5fa8523b300f09917
+```
+
+
+## Working with cloud providers
+AWS, Azure, GCP and other cloud providers publish their own Terraform provider that can be used to facilitate interaction with their cloud infra. You can browse the available providers through the available Terraform registry. 
+
+For AWS, you can configure your local AWS cli so as Terraform to be able to authenticate with AWS and interact with it. There are plenty of AWS resource types that you can use to define any type of AWS resource such as EC2, S3, Dynamodb, IAM, etc. Other providers should provide a similar approach to manage resources at their cloud infra through Terraform. 
+
 
 
