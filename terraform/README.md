@@ -1,7 +1,7 @@
 # Terraform Notes
 
 ## Intention
-These notes are a high level introduction to Terraform taken during my study of the tool. It is not meant to be used as a reference since many details are not included here but it should be still useful for a quick and dirty introduction to get a good feeling and understanding of the tool. 
+These notes are a high level introduction to Terraform taken during my study of the tool. It is not meant to be used as a reference since many details are not included here but it should be still useful for a quick and dirty introduction to get a good feeling and understanding of the tool.
 
 
 ## Introduction
@@ -78,9 +78,9 @@ The variables can be for **input** or **output** purposes. The input variables a
 
 
 ## Terraform state
-Terraform state keeps the state of the deployed infrastructure. The state is stored in a local file named `terraform.tfstate` and this file should not be version controlled since it may include sensitive information. When working with a team it is best stored in a remote backend such as a central S3 bucket or shared storage with state locking enabled so as to avoid state corruption. State locking is usually done from a DB backend (dynamodb or other). 
+Terraform state keeps the state of the deployed infrastructure. The state is stored in a local file named `terraform.tfstate` and this file should not be version controlled since it may include sensitive information. When working with a team it is best stored in a remote backend such as a central S3 bucket or shared storage with state locking enabled so as to avoid state corruption. State locking is usually done from a DB backend (dynamodb or other).
 
-You can manipulate the Terraform state with `terraform state` commands. For example, in order to rename a resource without recreating it, you can rename it in the state file, using `terraform state mv ...`, and then manually rename the resource in the configuration file also. In this way `terraform apply` will not detect any changes. 
+You can manipulate the Terraform state with `terraform state` commands. For example, in order to rename a resource without recreating it, you can rename it in the state file, using `terraform state mv ...`, and then manually rename the resource in the configuration file also. In this way `terraform apply` will not detect any changes.
 
 
 ## Terraform commands
@@ -93,7 +93,7 @@ You can manipulate the Terraform state with `terraform state` commands. For exam
 - `terraform output`: print the values of output variables.
 - `terraform refresh`: it refreshes local state with the actual infra state. Useful to incorporate manual changes into the state. This command is run automatically from `terraform plan` or `terraform apply`.
 - `terraform graph`: print resource dependencies in a dot format. The graph can be visualized with graphviz application or similar. Example: `terraform graph | dot -Tsvg > graph.svg`.
-- `terraform state list`: list the configured resources, as recorded from the state file. 
+- `terraform state list`: list the configured resources, as recorded from the state file.
 - `terraform state show <resource>`: show attributes of a matching resource, as recorded from the state file.
 
 
@@ -131,29 +131,29 @@ data "local_file" "dog" {
 
 
 ## Terraform Provisioners
-Provisioners are used to run a set of tasks after the resource has been deployed (create-time provisioners) or destroyed (destroy-time provisioners). These tasks can be run remotely or locally at the deployed resource. Failure of a provisioner will cause `terraform apply` to fail by default. This behavior can be adjusted (`on_failure = continue`) so as the `terraform apply` to not fail in such cases. Resources created while the provisioner is in failed state are marked as tainted.  
+Provisioners are used to run a set of tasks after the resource has been deployed (create-time provisioners) or destroyed (destroy-time provisioners). These tasks can be run remotely or locally at the deployed resource. Failure of a provisioner will cause `terraform apply` to fail by default. This behavior can be adjusted (`on_failure = continue`) so as the `terraform apply` to not fail in such cases. Resources created while the provisioner is in failed state are marked as tainted.
 
-You can use `local-exec` provisioner to run ansible playbooks. This is useful if you need to do a lot fo configuration tasks that are not well handled from scripting languages. 
+You can use `local-exec` provisioner to run ansible playbooks. This is useful if you need to do a lot fo configuration tasks that are not well handled from scripting languages.
 
-Example: 
+Example:
 ```
 provisioner "local-exec" {
   command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i '${self.ipv4_address}',     --private-key ${var.pvt_key} -e 'pub_key=${var.pub_key}' apache-install.yml"
 }
 ```
 
-Provisioners are defined within a resource thus they can use the `self` construct to refer to the resource. 
+Provisioners are defined within a resource thus they can use the `self` construct to refer to the resource.
 
 As a best practice, provisioners should be used as a last resort tool and one should try to avoid them if the desired outcome can be implemented with available resource type attributes such as user data. The reason of avoiding provisioners is that they introduce complexity and they do not follow the declarative model.
 
 
 ## Tainted resources
-When a failure is detected during a `terraform apply`, the affected resources are marked as **tainted**. This means that at a subsequent `terraform apply` the resources will be recreated to address the taint. 
+When a failure is detected during a `terraform apply`, the affected resources are marked as **tainted**. This means that at a subsequent `terraform apply` the resources will be recreated to address the taint.
 The taint mechanism is a means also to force the recreation of a resource by marking it as tainted with `terraform taint <resource>`. One can also untaint a resource with `terraform untaint <resource>`.
 
 
 ## Debugging Terraform
-You can enable different levels of log verbosity for Terraform using the `TF_LOG` environment variable. 
+You can enable different levels of log verbosity for Terraform using the `TF_LOG` environment variable.
 
 The available levels are the following, listed in increased verbosity order:
 - ERROR
@@ -166,20 +166,40 @@ To set the level you would do: `export TF_LOG=DEBUG`. To redirect the logs to a 
 
 
 ## Terraform import
-You can bring resources under Terraform management by importing them. This is useful when such resources are already provisioned through other tools or manually and you need to update your terraform state about their existence. 
+You can bring resources under Terraform management by importing them. This is useful when such resources are already provisioned through other tools or manually and you need to update your terraform state about their existence.
 
-In order to import resources you need first to define them into the Terraform configuration file. Terraform, as of this writing, does not support the automatic definition of the resources during import (check it out, it might have changed by now). One easy way to import a resource is to define a basic entry of the resource that you need to import without defining any attributes in the configuration file, import the resource with `terraform import <resource name> <resource ID>`, inspect the resource details from Terraform state (`terraform state show <resource>`) and then populate the resource attributes in the Terraform configuration file. You need to make sure then that Terraform will not affect the imported resources by running `terraform plan`. 
+In order to import resources you need first to define them into the Terraform configuration file. Terraform, as of this writing, does not support the automatic definition of the resources during import (check it out, it might have changed by now). One easy way to import a resource is to define a basic entry of the resource that you need to import without defining any attributes in the configuration file, import the resource with `terraform import <resource name> <resource ID>`, inspect the resource details from Terraform state (`terraform state show <resource>`) and then populate the resource attributes in the Terraform configuration file. You need to make sure then that Terraform will not affect the imported resources by running `terraform plan`.
 
-Example where we import an EC2 instance using the instance ID: 
+Example where we import an EC2 instance using the instance ID:
 ```
 terraform import aws_instance.myvm i-5fa8523b300f09917
 ```
 
+## Terraform Modules
+Terraform modules are a collection of configuration files so as to follow a DRY approach and avoid repeating code. They can be though as templates which you can include at your config files and overwrite few variables so as to finally deploy your specific resources.
+
+The modules can be either local ones, usually located under a modules subfolder at your file-system or can be sourced from the official Terraform registry. As as best practice, it is recommended to define a specific module version when sourcing from the registry. The modules at the registry usually provide submodules that assist to define more specific aspects of the deployed resource.
+
+Example using a local module:
+```
+module "aws_ec2" "myVM" {
+  source = "../modules/aws_ec2"
+  ami = foo
+}
+```
+
+Example using a module from the registry:
+```
+module "s3-bucket_example" {
+  source  = "terraform-aws-modules/s3-bucket/aws//examples/complete"
+  version = "4.2.0"
+}
+```
 
 ## Working with cloud providers
-AWS, Azure, GCP and other cloud providers publish their own Terraform provider that can be used to facilitate interaction with their cloud infra. You can browse the available providers through the available Terraform registry. 
+AWS, Azure, GCP and other cloud providers publish their own Terraform provider that can be used to facilitate interaction with their cloud infra. You can browse the available providers through the available Terraform registry.
 
-For AWS, you can configure your local AWS cli so as Terraform to be able to authenticate with AWS and interact with it. There are plenty of AWS resource types that you can use to define any type of AWS resource such as EC2, S3, Dynamodb, IAM, etc. Other providers should provide a similar approach to manage resources at their cloud infra through Terraform. 
+For AWS, you can configure your local AWS cli so as Terraform to be able to authenticate with AWS and interact with it. There are plenty of AWS resource types that you can use to define any type of AWS resource such as EC2, S3, Dynamodb, IAM, etc. Other providers should provide a similar approach to manage resources at their cloud infra through Terraform.
 
 
 
