@@ -196,6 +196,29 @@ module "s3-bucket_example" {
 }
 ```
 
+## Terraform Functions
+Can be used to manipulate and transform data. There are different types of functions, such as numeric, string, conversion or collection functions. Some common functions are:
+
+- file(path): reads the content of a file
+- toset(list): converts a list to a set value.
+- length(): determines the length of a given list, map, or string.
+- split(separator,string): transform a string to a list
+- lower(string): convert string to lower case
+- upper(string): convert string to upper case
+- substr(string, offset, length): extract a substring from a string
+- join(list): convert list to a string
+- index(list): get the index number from a list element
+- element(list): get an item from a list
+- contains(list): check if an element exists in a list
+- keys(map): get the keys from a map/dictionary
+- values(map): get the values from a map/disctionary
+- lookup(map,key): get a specific value from a map key.
+
+It is advised to reference the terraform docs for the full list of supported functions. There are plenty of them.
+
+You can use also `terraform console` to investigate or troubleshoot the result of a terraform function. The Terraform console will load all defined resources and variables so you can test them.
+
+
 ## Working with cloud providers
 AWS, Azure, GCP and other cloud providers publish their own Terraform provider that can be used to facilitate interaction with their cloud infra. You can browse the available providers through the available Terraform registry.
 
