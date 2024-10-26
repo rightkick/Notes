@@ -1,10 +1,7 @@
 Print the first row from match:
-
 awk 'NR==1{print $1}' /etc/*release
 
-
 Print last field of every row:
-
 awk '{ print $NF }' input.txt
 
 Awk ignore lines starting with spaces:
