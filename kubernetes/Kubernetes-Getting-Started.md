@@ -21,19 +21,19 @@ Following is the architecture with the main components and their interactions. A
 
 ### Data plane components
 - **worker nodes**: these are physical or virtual nodes that run workload processes (pods). 
-- **kubelet**: agent that enables the control plane to manage the node. It makes sure that the containers run in the pods and provides health info at the control plane by interacting with the kube-apiserver that runs at the master nodes. 
+- **kubelet**: agent that enables the control plane to manage the node where the kubelet is running. It makes sure that the containers run in the pods and provides health info at the control plane by interacting with the kube-apiserver that runs at the master nodes. 
 - **kube-proxy**: is a network proxy that runs on each node in the cluster and is responsible to manage network aspects related to the pods. It usually uses the OS available netfilter functions to apply the iptables rules needed to redirect the traffic. 
-- **container runtime**: a foundamental component that makes teh nodes able to run containers. Several container runtime options are supported, which implement the Kubernetes CRI, such as containerd, CRIO, rkt, docker, etc. 
+- **container runtime**: a fundamental component that makes the nodes able to run containers. Several container runtime options are supported, which implement the Kubernetes CRI, such as containerd, CRIO, rkt, docker, etc. 
 
 
 ### Additional kubernetes components
 
-- **kubectl**: a cluster management tool that is used to interact with the Kubernetes cluster. The tool is usually run out of the cluster and can be used to manage multiple clusters. 
+- **kubectl**: a cluster management command line tool that is used to interact with the Kubernetes cluster. The tool is usually run out of the cluster and can be used to manage multiple clusters by switching context. 
 - **Kubernetes dashboard**: one can enable the dashboard to provide simple web based management. 
-- **Monitoring and logging**
+- **Monitoring and logging**: one can use standard tooling (Prometheus, OTel) to scrape metrics related to the k8s cluster status. 
 - **Storage**: CSI plugins to provide persistent storage to the cluster. 
 - **Networking**: CNI plugins to provide advanced networking features. 
-- **Virtual Machines**: you can install kubevirt so as to manage VMs within Kubernetes. 
+- **Virtual Machines**: you can install kubevirt so as to manage VMs on top Kubernetes. 
 
 
 ### Basic Types of kubernetes objects
@@ -99,7 +99,7 @@ Apart from the vanilla option, there are several other Kubernetes distributions 
 - **k3d**: lighweight version for learning/dev purposes (k3s in docker)
 - **Minikube**: lighweight version for learning/dev purposes. 
 - **Kind**: lighweight version for learning/dev purposes. 
-- **Openshift**: enterprise version provided form Redhat (OKD is the OSS upstream)
+- **Openshift**: enterprise version provided from Redhat (OKD is the OSS upstream)
 
 
 # Useful Kubernetes tools: 
@@ -107,18 +107,17 @@ Apart from the vanilla option, there are several other Kubernetes distributions 
 ### CI/CD
 CI/CD tools that integrate well with Kubernetes:
 - ArgoCD
+- FluxCD
 
 ### Cluster management
 Tools that facilitate cluster management:
 - k9s
+- kubeadm
 - Kustomize
 - Lens
 - Kubeshark
-- kubeadm
-- kubespray
+- Kubespray
 - Rancher
-- CloudStack
-- Kosmotron
 - Cluster API
 
 ### Storage
@@ -136,16 +135,16 @@ Plugins that make k8s capable of running VMs:
 ### CNI
 Some famous CNI plugins are the following:
 
+- Flannel
 - Calico
 - Cilium
-- Weave Net
 - Cargo
-- Flannel
 - Kube-OVN
+- Weave Net
 
 
 ### Playground for practise
-In case you need to practise some k8s without deploying your own VMs:
+In case you need to practice some k8s without deploying your own VMs:
 - https://labs.play-with-k8s.com/
 
 
@@ -176,7 +175,7 @@ A pod is a set of one or more containers scheduled on the same physical or virtu
 - Generate a yaml file for a pod: `kubectl run redis --image=redis -o yaml --dry-run=client`
 - Port forward: `kubectl port-forward POD [LOCAL_PORT:]REMOTE_PORT`
 
-Each pod inclides at least one app container and a special *pause* container which is there to provide a shared network stack to the containers of the same pod. 
+Each pod includes at least one app container and a special *pause* container which is there to provide a shared network stack to the containers of the same pod. 
 
 ### Replication Controller
 
@@ -208,7 +207,7 @@ The deployments can have two deployment strategies: recreate and rolling update 
 
 ### Kubernetes Services
 
-It is a kubernetes contruct that defines how the pods can be accessed within the cluster or outside the cluster. The service uses the pod labels to route the ingress traffic to the appropriate pods. If mutiple pods match the labels used from the service selector then the traffic is load balanced between the different pods. 
+It is a kubernetes construct that defines how the pods can be accessed within the cluster or outside the cluster. The service uses the pod labels to route the ingress traffic to the appropriate pods. If multiple pods match the labels used from the service selector then the traffic is load balanced between the different pods. 
 
 The creation of the service will generate endpoints in the cluster. 
 
