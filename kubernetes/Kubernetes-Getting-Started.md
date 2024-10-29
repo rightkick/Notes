@@ -12,16 +12,16 @@ Following is the architecture with the main components and their interactions. A
 
 ### Control plane components 
 - **master nodes**: these are physical or virtual nodes that run the control plane processes. It can be a single node or multiple nodes to provide HA. Master nodes can act also as a worker node, usually when you need to go with a single node cluster. 
-- **Kubernetes API server**: The API server is the front end for the Kubernetes control plane. It is a component (pod) that provides all the API needed to run and manage the cluster. The name of this pod is kube-apiserver.  
-- **Kubernetes scheduler**: this is responsible for scheduling the pods to the nodes. The pod is named kube-scheduler. 
-- **Kubernetes controller**: this is set of different controllers bundled as a single component named kube-controller-manager and is responsible for monitoring nodes and managing endpoints for services and pods. Some types of controllers are: ReplicaSet, Deployment, StatefulSet, Job, CronJob, DaemonSet.
-- **KV store**: kubernetes includes a key-value store that keeps the state of the cluster. Usually it is etcd but it can be any other supported technology. 
+- **Kubernetes API server**: The API server is the front end for the Kubernetes control plane. It is a component (pod) that provides all the API needed to run and manage the cluster. The name of this pod is `kube-apiserver`.  
+- **Kubernetes scheduler**: this is responsible for scheduling the pods to the nodes. The pod is named `kube-scheduler`. 
+- **Kubernetes controller**: this is set of different controllers bundled as a single component named `kube-controller-manager` and is responsible for monitoring nodes and managing endpoints for services and pods. Some types of controllers are: ReplicaSet, Deployment, StatefulSet, Job, CronJob, DaemonSet.
+- **KV store**: kubernetes includes a key-value store that keeps the state of the cluster. Usually it is `etcd` but it can be any other supported technology. 
 - **cloud controller manager**: optional component to provide integration with cloud APIs so as to manage clusters hosted at cloud providers. 
 
 
 ### Data plane components
 - **worker nodes**: these are physical or virtual nodes that run workload processes (pods). 
-- **kubelet**: agent that enables the control plane to manage the node where the kubelet is running. It makes sure that the containers run in the pods and provides health info at the control plane by interacting with the kube-apiserver that runs at the master nodes. 
+- **kubelet**: agent that enables the control plane to manage the node where the `kubelet` is running. It makes sure that the containers run in the pods and provides health info at the control plane by interacting with the `kube-apiserver` that runs at the master nodes. 
 - **kube-proxy**: is a network proxy that runs on each node in the cluster and is responsible to manage network aspects related to the pods. It usually uses the OS available netfilter functions to apply the iptables rules needed to redirect the traffic. 
 - **container runtime**: a fundamental component that makes the nodes able to run containers. Several container runtime options are supported, which implement the Kubernetes CRI, such as containerd, CRIO, rkt, docker, etc. 
 
@@ -55,7 +55,7 @@ Following is the architecture with the main components and their interactions. A
 - Namespace
 - Annotation
 
-If you are interested to list all the available object types you can do that with `kubectl api-resources` and if you need a description of the reosurce type do that with `kubectl explain <object>`. 
+If you are interested to list all the available object types you can do that with `kubectl api-resources` and if you need a description of the resource type you can get that with `kubectl explain <object>`. 
 
 
 ### Kubernetes Networking
@@ -168,6 +168,24 @@ A kubernetes cluster is a set of nodes that coordinate to run the cluster servic
 
 A pod is a set of one or more containers scheduled on the same physical or virtual machine that acts as a unit. A pod can have one or multiple containers. Every pod has an IP address that belongs to a range assigned to a node. The IP address changes whenever the pod is recreated. The IP address assigned to the pod is accessible from all nodes within the cluster. 
 
+Here is a sample YAML definition for a pod:
+```
+# Pod definition
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-nginx
+  labels:
+    env: dev
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+      env:
+        - name: env_var
+          value: env_value
+```
+
 - Get list of pods: `kubectl get pods`
 - Get pod details: `kubectl describe pod <pod>`
 - List pods with a specific label: `kubectl get pods -l app=nginx-netshoot`
@@ -179,16 +197,74 @@ Each pod includes at least one app container and a special *pause* container whi
 
 ### Replication Controller
 
+It is a kubernetes controller that can handle the replication of pods to scale the deployed apps and distribute the load. It is being replaced from Replicasets as a more powerful resource type. 
+
+Here is a sample YAML definition for the ReplicationController:
+```
+# Replication Controller definition
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: myapp-rc
+  labels:
+    app: my-app
+    type: front-end
+spec:
+  template:
+    metadata:
+      name: my-nginx
+      labels:
+        env: dev
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+  replicas: 2
+  ```
+
+  The ReplicationController spec has a template section which includes the content of a pod definition (apart from `apiVersion` and `kind`) and a `replicas` section defining the amount of replicas we need for the pod. 
+
 - List replication controllers: `kubectl get replicationController`
 
 
 ### Replicasets
+
+It is a kubernetes controller that can handle the replication of pods to scale the deployed apps and distribute the load. The ReplicaSet provides more advanced selector features then the ReplicationController so as to match pod labels in a more flexible way. 
+
+Here is a sample YAML definition for a ReplicaSet:
+```
+# ReplicaSet definition
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: myapp-rs
+  labels:
+    app: my-app
+    type: front-end
+spec:
+  template:
+    metadata:
+      name: my-nginx
+      labels:
+        env: dev
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+  replicas: 2
+  selector:
+    matchLabels:
+      env: dev
+```
+
+The spec of the ReplicaSet has three parts, the pod template, the replicas and the selector. The selector is used to match labels from deployed pods, regardless if they are created from the ReplicaSet or not. The ReplicaSet controller will make sure that the amount of replicas defined is always running and it can create new pods when needed using the template section. 
 
 - List created replica-sets: `kubectl get replicaset`
 - Replace or update replica-set: `kubectl replace -f file.yml`
 - Edit a replica-set: `kubectl edit replicaset <replicaset name>`
 - Force replace a replica-set: `kubectl replace -f file.yml --force`
 - Scale a replica-set: `kubectl scale replicaset <replicaset name> --replicas=3`
+
 
 ### Deployments
 
@@ -238,6 +314,8 @@ kubectl exec -it <netshoot_pod> -c netshoot -- /bin/sh
 
 # K3D
 
+K3D is a useful tool to quickly deploy kubernetes clusters for dev use. 
+
 - Create a cluster: `k3d cluster create`
 - Stop a cluster: `k3d cluster stop <cluster name>`
 - Start cluster: `k3s cluster start <cluster name>`
@@ -248,11 +326,22 @@ kubectl exec -it <netshoot_pod> -c netshoot -- /bin/sh
 
 # Minikube
 
+Minikube is a useful tool to quickly deploy kubernetes clusters for dev use. 
+
 - Spin up a 3 node minikube cluster: `minikube start --nodes 3`
 - Spin up a cluster with Flannel as CNI: `minikube start --nodes 3 --cni flannel`
 - Check cluster status: `minikube status`
 - List minikube addons: `minikube addons list`
 - Delete a local cluster: `minikube delete`
+
+# Kind
+
+Kind is a useful tool to quickly deploy kubernetes clusters for dev use. 
+
+- Spin up a single node cluster: `kind create cluster`
+- List clusters: `kind get clusters`
+- Delete a cluster: `kind delete cluster`
+
 
 
 
