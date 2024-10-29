@@ -258,7 +258,7 @@ spec:
       env: dev
 ```
 
-The spec of the ReplicaSet has three parts, the pod template, the replicas and the selector. The selector is used to match labels from deployed pods, regardless if they are created from the ReplicaSet or not. The ReplicaSet controller will make sure that the amount of replicas defined is always running and it can create new pods when needed using the template section. 
+The spec of the ReplicaSet has three parts, the pod template, the replicas and the selector. The selector is used to match labels from deployed pods, regardless if they are created from the ReplicaSet or not. The ReplicaSet controller will make sure that the amount of replicas defined is always running and it can create new pods when needed using the template section. If you deploy pods out of the ReplicaSet that use the same label as the one monitored from the ReplicaSet then the ReplicaSet will terminate it since the additional external pod increases the number of replicas declared that have the same label. 
 
 - List created replica-sets: `kubectl get replicaset`
 - Replace or update replica-set: `kubectl replace -f file.yml`
