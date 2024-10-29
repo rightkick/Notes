@@ -312,6 +312,7 @@ Get list of services: `kubectl get svc -o wide`
 kubectl exec -it <netshoot_pod> -c netshoot -- /bin/sh
 ```
 
+
 # Kind
 
 Kind is a useful tool to quickly deploy kubernetes clusters on top Docker nodes. 
