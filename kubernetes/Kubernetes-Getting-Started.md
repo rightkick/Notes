@@ -312,6 +312,15 @@ Get list of services: `kubectl get svc -o wide`
 kubectl exec -it <netshoot_pod> -c netshoot -- /bin/sh
 ```
 
+# Kind
+
+Kind is a useful tool to quickly deploy kubernetes clusters on top Docker nodes. 
+
+- Spin up a single node cluster: `kind create cluster`
+- List clusters: `kind get clusters`
+- Delete a cluster: `kind delete cluster`
+
+
 # K3D
 
 K3D is a useful tool to quickly deploy kubernetes clusters for dev use. 
@@ -326,7 +335,7 @@ K3D is a useful tool to quickly deploy kubernetes clusters for dev use.
 
 # Minikube
 
-Minikube is a useful tool to quickly deploy kubernetes clusters for dev use. 
+Minikube is a useful tool to quickly deploy kubernetes clusters on top Docker nodes.
 
 - Spin up a 3 node minikube cluster: `minikube start --nodes 3`
 - Spin up a cluster with Flannel as CNI: `minikube start --nodes 3 --cni flannel`
@@ -334,13 +343,6 @@ Minikube is a useful tool to quickly deploy kubernetes clusters for dev use.
 - List minikube addons: `minikube addons list`
 - Delete a local cluster: `minikube delete`
 
-# Kind
-
-Kind is a useful tool to quickly deploy kubernetes clusters for dev use. 
-
-- Spin up a single node cluster: `kind create cluster`
-- List clusters: `kind get clusters`
-- Delete a cluster: `kind delete cluster`
 
 
 
