@@ -2,6 +2,7 @@
 
 Kubernetes is a container orchestrator engine. It is deployed as a cluster of a single or multiple nodes. The nodes are of two types: master nodes, which run control plane processes, and worker nodes which run workload processes. The workload is a set of pods that are deployed from the user and run on worker nodes.
 
+
 ## Architecture
 
 Following is the architecture with the main components and their interactions. An explanation of each component follows further down.
