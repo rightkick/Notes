@@ -14,7 +14,7 @@ spec:
   replicas: 4    
   template:
     metadata:
-      name: my-nginx
+      name: my-nginx-test
       labels:
         app: my-app
     spec:
