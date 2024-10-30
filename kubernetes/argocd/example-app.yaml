@@ -14,7 +14,7 @@ spec:
   replicas: 4    
   template:
     metadata:
-      name: nginx-2
+      name: my-nginx
       labels:
         app: my-app
     spec:

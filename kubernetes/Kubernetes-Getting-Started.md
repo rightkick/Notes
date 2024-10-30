@@ -269,9 +269,38 @@ The spec of the ReplicaSet has three parts, the pod template, the replicas and t
 
 ### Deployments
 
-A deployment is an abstraction for the pods. It allows you to have extra functionality and control on top of the pods regarding the amount of pod instances to run and their update strategy. 
+A deployment is an abstraction for the pods and ReplicaSets. It allows you to have extra functionality and control on top of the pods regarding the amount of pod instances to run and their update strategy. 
 
-The deployments can have two deployment strategies: recreate and rolling update (default). 
+The deployments can have two deployment strategies: *recreate* and *rolling update* (default). 
+
+Here is a sample deployment file: 
+```
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-deployment
+  labels:
+    tier: frontend
+    app: nginx
+
+spec:
+  selector:
+    matchLabels:
+      app: my-app
+  replicas: 3    
+  template:
+    metadata:
+      name: my-nginx
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+          ports:
+          - containerPort: 80
+  ```
 
 - Create a deployment: `kubectl create -f deployment.yml --record `
 - To roll-out/update a deployment, update yml file and `kubectl apply -f deployment.yml --record`
