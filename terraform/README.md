@@ -78,7 +78,61 @@ The variables can be for **input** or **output** purposes. The input variables a
 
 
 ## Terraform State
-Terraform state keeps the state of the deployed infrastructure. The state is stored by default in a local file named `terraform.tfstate` located within the current configuration directory and this file should not be version controlled since it may include sensitive information. When working with a team it is best stored in a remote backend such as a central S3 bucket or shared storage with state locking enabled so as to avoid state corruption. State locking is usually done from a DB backend (dynamodb or other).
+Terraform state keeps the state of the deployed infrastructure. The state is stored by default in a local file named `terraform.tfstate` located within the current configuration directory and this file should not be version controlled since it may include sensitive information. 
+
+When working with a team it is best stored in a remote backend such as a central S3 bucket or shared storage with state locking enabled so as to avoid state corruption. State locking is usually done from a DB backend (dynamodb or other). Usually one uses encrypted AWS S3 and DynamoDB to have the state stored remotely. One needs a single S3 bucket and a single DynamoDB table to manage the states for different Terraform projects, as long as the S3 buckets use a different key per project so as to avoid race conditions and state corruption. This unique S3 key can be automatically used from the DynamDB as a distinct lock ID so as to avoid state locking from unrelated projects. 
+
+Example backend configuration for a project: 
+```
+terraform {
+  backend "s3" {
+    bucket         = "terraform-state-bucket"
+    key            = "myproject1/terraform.tfstate"
+    region         = "eu-central-1"
+    profile        = "aws_account_profile"
+    dynamodb_table = "shared-terraform-lock-table"
+    encrypt        = true
+  }
+} 
+```
+
+The S3 bucket and DynamoDB table are usually defined under a separate Terraform project which has the sole purpose of bringing these resources up. 
+
+Example: 
+```
+resource "aws_s3_bucket" "s3_tf_state" {
+  bucket = "terraform-state-bucket"
+}
+
+resource "aws_s3_bucket_versioning" "s3_tf_state_versioning" {
+  bucket = aws_s3_bucket.s3_tf_state.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "s3_tf_state_encryption" {
+  bucket = aws_s3_bucket.s3_tf_state.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = "aws:kms"
+    }
+  }
+}
+
+resource "aws_dynamodb_table" "terraform_locks" {
+  name         = "shared-terraform-lock-table"
+  billing_mode = "PROVISIONED"
+  hash_key     = "LockID"
+  attribute {
+    name = "LockID"
+    type = "S"
+  }
+}
+```
+
+The S3 bucket created is encrypted using the default AWS KMS key for the s3 service (aws/s3) and has versioning enabled. 
 
 You can manipulate the Terraform state with `terraform state` commands. For example, in order to rename a resource without recreating it, you can rename it in the state file, using `terraform state mv ...`, and then manually rename the resource in the configuration file also. In this way `terraform apply` will not detect any changes.
 
