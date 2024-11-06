@@ -80,7 +80,7 @@ The variables can be for **input** or **output** purposes. The input variables a
 ## Terraform State
 Terraform state keeps the state of the deployed infrastructure. The state is stored by default in a local file named `terraform.tfstate` located within the current configuration directory and this file should not be version controlled since it may include sensitive information. 
 
-When working with a team it is best stored in a remote backend such as a central S3 bucket or shared storage with state locking enabled so as to avoid state corruption. State locking is usually done from a DB backend (dynamodb or other). Usually one uses encrypted AWS S3 and DynamoDB to have the state stored remotely. One needs a single S3 bucket and a single DynamoDB table to manage the states for different Terraform projects, as long as the S3 buckets use a different key per project so as to avoid race conditions and state corruption. This unique S3 key can be automatically used from the DynamDB as a distinct lock ID so as to avoid state locking from unrelated projects. 
+When working with a team it is recommended to have the Terraform state stored at a remote backend such as a central S3 bucket or shared storage with state locking enabled so as to avoid state corruption and enhance security. State locking is usually done from a DB backend (dynamodb or other). Usually one uses encrypted AWS S3 and DynamoDB to have the state stored remotely in a secure way. One needs a single S3 bucket and a single DynamoDB table to manage the states for different Terraform projects, as long as the S3 bucket uses a different key per project when defined as a backend under the project so as to avoid race conditions and state corruption. This unique S3 key can be automatically used from the Terraform as a distinct DynamoDB lock ID so as to avoid state locking from unrelated projects.
 
 Example backend configuration for a project: 
 ```
@@ -96,7 +96,7 @@ terraform {
 } 
 ```
 
-The S3 bucket and DynamoDB table are usually defined under a separate Terraform project which has the sole purpose of bringing these resources up. 
+The S3 bucket and DynamoDB table are usually defined under a separate Terraform project which has the sole purpose of bringing these resources up. This project is a minimal one and can use local Terraform state so as to avoid the chicken-&-egg problem. 
 
 Example: 
 ```
