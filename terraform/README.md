@@ -51,8 +51,12 @@ Usually variables are grouped into a file named `variables.tf`. Example:
 ```
 variable <var_name> {
     default = "default value"
-    type = <string|number|bool|tuple|list|set|map|object>
+    type = <string|number|bool|list|set|map|tuple|object>
     description = "variable description"
+}
+
+output <var_name> {
+  value = <resource related value>
 }
 ```
 
@@ -66,7 +70,9 @@ var_2="value2"
 
 Files that are named as `terraform.tfvars`, `terraform.tfvars.json`, `*.auto.tfvars`, `*.auto.tfvars`.json are automatically loaded from Terraform. Files that do not follow this rule should be passed at command line using `-var-file` flag. Example: `terraform apply -var-file variables.tfvars`.
 
-There are different ways to define variables (listed in ascending precedence):
+The variables can be for **input** or **output** purposes. The input variables (defined with a `variable` block) are used to feed configuration files while the output variables (defined with an `output` block) can be used for both feeding configuration files and displaying their value in the console.
+
+There are different ways to define input variables (listed in ascending precedence):
 - export env variables using `TF_VAR_<var_name>` (lower precedence)
 - define variables in `terraform.tfvars`
 - define variables in `variables.auto.tfvars`
@@ -74,7 +80,14 @@ There are different ways to define variables (listed in ascending precedence):
 
 You should be aware of the variable definition precedence that Terraform follows, in order to understand the final value that the variables will have in case there are different conflicting definitions.
 
-The variables can be for **input** or **output** purposes. The input variables are used to feed configuration files while the output variables can be used for both feeding configuration files and displaying their value in the console.
+You can define also variables within a `locals` block, which are scoped as local variables within the Terraform project. These variables are then referenced with `local.<variable name>`. Example: 
+
+```
+locals {
+  <var_name1> = <value1>
+  <var_name2> = <value2>
+}
+```
 
 
 ## Terraform State
@@ -387,10 +400,18 @@ resource "aws_s3_object" "upload_my_bucket" {
 }
 ```
 
+## Dependency graph
+Terraform usually will automatically figure out the dependency of the defined resources so as to correctly apply and deploy the resources. In case you need to explicitly configure a dependency between resources then you can ue the `depend_on` attribute within a resource block. 
+
+
 ## Working with cloud providers
 AWS, Azure, GCP and other cloud providers publish their own Terraform provider that can be used to facilitate interaction with their cloud infra. You can browse the available providers through the available Terraform registry.
 
 For AWS, you can configure your local AWS cli so as Terraform to be able to authenticate with AWS and interact with it. There are plenty of AWS resource types that you can use to define any type of AWS resource such as EC2, S3, Dynamodb, IAM, etc. Other providers should provide a similar approach to manage resources at their cloud infra through Terraform.
+
+## Tips
+- Avoid committing your terraform state into version control. Terraform state files usually contain sensitive information that you would like to keep away from version control. 
+
 
 
 
