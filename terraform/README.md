@@ -234,7 +234,7 @@ data "local_file" "dog" {
 ## Terraform Provisioners
 Provisioners are used to run a set of tasks after the resource has been deployed (create-time provisioners) or destroyed (destroy-time provisioners). These tasks can be run remotely or locally at the deployed resource. Failure of a provisioner will cause `terraform apply` to fail by default. This behavior can be adjusted (`on_failure = continue`) so as the `terraform apply` to not fail in such cases. Resources created while the provisioner is in failed state are marked as tainted.
 
-You can use `local-exec` provisioner to run ansible playbooks. This is useful if you need to do a lot fo configuration tasks that are not well handled from scripting languages.
+You can use `local-exec` provisioner to run ansible playbooks. This is useful if you need to do a lot of configuration tasks that are not well handled from scripting languages.
 
 Example:
 ```
