@@ -1,14 +1,14 @@
 # Terraform Notes
 
 ## Intention
-These notes are a high level introduction to Terraform taken during my study of the tool. It is not meant to be used as a reference since many details are not included here but it should be still useful for a quick and dirty introduction to get a good feeling and understanding of the tool.
+These notes are a high level introduction to Terraform taken during my study of the tool. It is not meant to be used as a reference but as a quick and dirty introduction to get a good feeling and understanding of the tool.
 
 
 ## Introduction
-Terraform uses HCL to define infrastructure as code. It uses different providers that abstract the interactions with the infrastructure they configure. The providers include different resource types that can be used to define the desired state for the target infra. Terraform follows an immutable approach and by default it deletes the resources prior to creating a new version of them.
+Terraform uses HCL to define infrastructure as code. Terraform has a pluggable architecture which has a core component and multiple plugins that are named providers. The providers interact with the API that the different infrastructure components support and provide a level of abstraction to simplify the configuration of these infrastructure components. The providers include different resource types that can be used to define the desired state for the target infra. Terraform is idempotent, which means that applying multiple times the same configuration will have the same result. By default Terraform deletes the resources prior to creating a new version of them. Terraform keeps track of the state of the infrastructure components through a state file and will not affect resources that do not change state. If you configure resources out of Terraform, then Terraform will not be aware about these external resources and you will need to import them in order to bring them under the management of Terraform. If you though manually change the configuration of resources that are managed from Terraform, then at the next apply Terraform will restore their configuration to the state that Terraform knows about. 
 
 
-## Steps to run Terraform
+## Quick steps to run Terraform
 - Create `yourfilename.tf` file
 - Optionally validate your configuration file: `terraform validate`
 - Run `terraform init`
@@ -17,8 +17,7 @@ Terraform uses HCL to define infrastructure as code. It uses different providers
 
 
 ## Configuration
-You can have several `.tf` files within your root config directory so as to organize your code.
-Usually the files are split as follows:
+You can have several `.tf` files within your root config directory so as to organize your code. Usually the files are split as follows:
 - `main.tf`
 - `variables.tf`
 - `outputs.tf`
