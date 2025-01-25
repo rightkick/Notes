@@ -278,7 +278,7 @@ terraform import aws_instance.myvm i-5fa8523b300f09917
 ## Terraform Modules
 Terraform modules are a collection of configuration files so as to follow a DRY approach and avoid repeating code. They can be thought as templates which you can include at your config files and overwrite few variables so as to finally deploy your specific resources.
 
-The modules can be either local ones, usually located under a modules subfolder at your file-system or can be sourced from a public registry (Terraform, OpenTofu or other). As as best practice, it is recommended to define a specific module version when sourcing from the registry. The modules at the registry usually provide submodules that assist to define more specific aspects of the deployed resource.
+The modules can be either local ones, usually located under a modules subfolder at your file-system or can be sourced from a public registry (Terraform, OpenTofu or other). As as best practice, it is recommended to define a specific module version when sourcing from a registry. Locally sources modules do not support versioning. The modules at the registry usually provide submodules that assist to define more specific aspects of the deployed resource.
 
 Example using a local module:
 ```
@@ -296,7 +296,7 @@ module "s3-bucket_example" {
 }
 ```
 
-A module has input and output variables. Input variables are used to feed the module with values that set attributes for the infrastructure they abstract. Output variables are used to access data from resources that are created from the module. Modules hosted on a public registry usually contain a description of the module with details on the input and output variables you are required to use when using the module. 
+A module has input and output variables. When using a module, input variables are used to feed the module with values that set attributes for the infrastructure it abstracts. Output variables are used to access data from resources that are created from the module. Modules hosted on a public registry usually contain documentation with details on the input and output variables you are required to use when using the module. 
 
 ## Terraform Functions
 Can be used to manipulate and transform data. There are different types of functions, such as numeric, string, conversion or collection functions. Some common functions are:
