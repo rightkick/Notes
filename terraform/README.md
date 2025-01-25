@@ -1,7 +1,7 @@
 # Terraform Notes
 
 ## Intention
-These notes are a high level introduction to Terraform taken during my study of the tool. It is not meant to be used as a reference but as a quick and dirty introduction to get a good feeling and understanding of the tool.
+These notes are a high level introduction to Terraform taken during my study of the tool. It is not meant to be used as a reference but as a quick and dirty introduction to get a good feeling and understanding of the technology.
 
 
 ## Introduction
@@ -278,7 +278,7 @@ terraform import aws_instance.myvm i-5fa8523b300f09917
 ## Terraform Modules
 Terraform modules are a collection of configuration files so as to follow a DRY approach and avoid repeating code. They can be thought as templates which you can include at your config files and overwrite few variables so as to finally deploy your specific resources.
 
-The modules can be either local ones, usually located under a modules subfolder at your file-system or can be sourced from the official Terraform registry. As as best practice, it is recommended to define a specific module version when sourcing from the registry. The modules at the registry usually provide submodules that assist to define more specific aspects of the deployed resource.
+The modules can be either local ones, usually located under a modules subfolder at your file-system or can be sourced from a public registry (Terraform, OpenTofu or other). As as best practice, it is recommended to define a specific module version when sourcing from the registry. The modules at the registry usually provide submodules that assist to define more specific aspects of the deployed resource.
 
 Example using a local module:
 ```
