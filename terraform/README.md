@@ -296,6 +296,8 @@ module "s3-bucket_example" {
 }
 ```
 
+A module has input and output variables. Input variables are used to feed the module with values that set attributes for the infrastructure they abstract. Output variables are used to access data from resources that are created from the module. Modules hosted on a public registry usually contain a description of the module with details on the input and output variables you are required to use when using the module. 
+
 ## Terraform Functions
 Can be used to manipulate and transform data. There are different types of functions, such as numeric, string, conversion or collection functions. Some common functions are:
 
