@@ -10,9 +10,9 @@ git_branch_cur=$(git rev-parse --abbrev-ref HEAD)
 git_branch_main=$(git branch -l main master --format '%(refname:short)')
 
 # Check if there are any local branches that are already merged
-git_local_merged=$(git branch --merged ${git_branch_main} | grep -v ${git_branch_cur} | grep -vE "${git_branch_main}|${git_branch_cur}")
+git_local_merged=$(git branch --merged "${git_branch_main}" | grep -v ${git_branch_cur} | grep -vE "${git_branch_main}|${git_branch_cur}")
 
-if [ ! -z ${git_local_merged} ];then
+if [ ! -z "${git_local_merged}" ];then
 
     echo "You are going to delete local git branches that are already merged with main"
     read -p "Are you sure you want to continue? (y/n): " choice
