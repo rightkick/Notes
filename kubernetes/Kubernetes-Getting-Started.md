@@ -325,11 +325,21 @@ Following are the different types of services:
 
 - **ClusterIP**: exposes the service on an internal cluster IP. This is typically used for services only accessed by other workloads running within the cluster.
 - **HeadLess**: this is useful to provide a service name which resolves to the pod IPs for direct pod-pod communications.
-- **NodePort**: exposes a service on each worker nodes IP on a static port. 
+- **NodePort**: exposes a service on each worker nodes IP on a static port (default range: 30000-32767). 
 - **LoadBalancer**: Exposes the service externally using a cloud provider’s load balancer.
 - **ExternalName**: Maps the service to an external name via a DNS provider returning a CNAME record. 
 
 Get list of services: `kubectl get svc -o wide`
+
+### Kubernetes Ingress
+
+Ingress helps to expose internal cluster applications to users that need to access such applications. It acts as a reverse proxy and interacts with an internal service to route traffic based on routing rules that are defined in an ingress resource. You can also expose an app by using a service of type `NodePort` or `LoadBalancer` but such types of services operate at layer 4 and they do not scale well if you need to expose multiple applications to different host names or paths. This is what ingress comes to solve. It can expose applications that are accessible internally through a `ClusterIP` service and it supports multiple host nmaes or paths. For example you could have `app1.example.local` and `app2.example.local` or `app.example.local/path1` and `app.example.local/path2` all exposed through the same ingress controller.
+
+Ingress is comprosed of two objects: 
+- ingress resources: general kubernetes constructs where the ingress rules are defined
+- ingress controllers: third party implementations of ingress that automate and implement the rules defined in the ingress resources. 
+
+Kubernetes does not come with a default ingress controller. You need to install one if you need to deploy such a thing. There are different types of ingress controllers that support software, hardware or cloud load balancers. For example Nginx or Traefik is an ingress controller that can act as a reverse proxy and load balancer in the same time by exposing an application to an IP address that is assigned to a worker node. This node acts as the ingress point to access the application. Alternatively you could deploy a cloud ingress controller which would automate the configuration of a cloud load balancer (for example AWS ELB) that would provide the ingress route to access your apps. 
 
 
 # Tips
