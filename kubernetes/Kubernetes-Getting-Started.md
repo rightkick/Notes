@@ -333,7 +333,9 @@ Get list of services: `kubectl get svc -o wide`
 
 ### Kubernetes Ingress
 
-Ingress helps to expose internal cluster applications to users that need to access such applications. It acts as a reverse proxy and interacts with an internal service to route traffic based on routing rules that are defined in an ingress resource. You can also expose an app by using a service of type `NodePort` or `LoadBalancer` but such types of services operate at layer 4 and they do not scale well if you need to expose multiple applications to different host names or paths. This is what ingress comes to solve. It can expose applications that are accessible internally through a `ClusterIP` service and it supports multiple host nmaes or paths. For example you could have `app1.example.local` and `app2.example.local` or `app.example.local/path1` and `app.example.local/path2` all exposed through the same ingress controller.
+Ingress helps to expose internal cluster applications to users that need to access such applications. It acts as a reverse proxy and interacts with an internal service to route traffic based on routing rules that are defined in an ingress resource. It operates at the OSI layer 7 and supports load balancing, TLS termination and named based virtual hosting. 
+
+You may think that you can also expose an app by using a service of type `NodePort` or `LoadBalancer` but such types of services operate at layer 4 and they do not scale well if you need to expose multiple applications to different host names or paths. This is what ingress comes to solve. It can expose applications that are accessible internally through a `ClusterIP` service and it supports multiple host names or paths. For example you could have `app1.example.local` and `app2.example.local` or `app.example.local/path1` and `app.example.local/path2` all exposed through the same ingress controller.
 
 Ingress is comprosed of two objects: 
 - ingress resources: general kubernetes constructs where the ingress rules are defined
