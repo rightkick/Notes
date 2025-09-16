@@ -1,31 +1,15 @@
 #!/bin/bash
 # A script to clean local git branches that are already merged into main
 # Author: A. Kaouris
-# Revision: 27 Feb 2025
+# Revision: 16 Sept 2025
 
-# Get current git branch
-git_branch_cur=$(git rev-parse --abbrev-ref HEAD)
+warn_print "!!! WARNING !!!"
+read -p "You are about to delete all your local branches that are missing from remote! Do you really want to proceed? Y/[N]: " confirmation
+answer=${confirmation:-N}
 
-# Get main branch
-git_branch_main=$(git branch -l main master --format '%(refname:short)')
-
-# Check if there are any local branches that are already merged
-git_local_merged=$(git branch --merged "${git_branch_main}" | grep -v ${git_branch_cur} | grep -vE "${git_branch_main}|${git_branch_cur}")
-
-if [ ! -z "${git_local_merged}" ];then
-
-    echo "You are going to delete local git branches that are already merged with main"
-    read -p "Are you sure you want to continue? (y/n): " choice
-    case "$choice" in 
-    y|Y ) echo "Proceeding...";;
-    n|N ) echo "Aborted."; exit 1;;
-    * ) echo "Invalid input. Please enter y or n."; exit 1;;
-    esac
-
-    # Clean local branches that have been merged with main
-    for i in $(git branch --merged ${git_branch_main} | grep -v ${git_branch_cur} | grep -vE "${git_branch_main}|${git_branch_cur}");do 
-        git branch -d $i;
-    done
+if [ $answer = N ] || [ $answer = n ];then
+    info_print "Ouff...that was near..."
+    exit 0;
 else
-    echo "No local branches to clean"
+    git fetch -p && for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}'); do info_print "Deleting local branch $branch"; git branch -D $branch; done
 fi
