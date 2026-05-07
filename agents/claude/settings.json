@@ -167,7 +167,10 @@
       "Bash(kind delete cluster *)",
       "Bash(kind load docker-image *)",
       "Bash(systemctl status *)",
-      "Bash(journalctl *)"
+      "Bash(journalctl *)",
+      "Bash(tofu fmt -check *)",
+      "Bash(tflint *)",
+      "Bash(go build *)"
     ],
     "deny": [
       "Bash(git branch -d *)",
