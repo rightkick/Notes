@@ -1,0 +1,143 @@
+---
+# Forgejo - Self-hosted Git forge
+# Stack: Forgejo + PostgreSQL + Redis + act_runner (Actions CI)
+#
+# First-time setup:
+#   1. Copy .env.example to .env and fill in the values
+#   2. Run: bash setup.sh
+#   3. Run: docker compose up -d
+#   4. Open http://<your-ip>:3000 and complete the web installer
+#   5. Go to Admin → Actions → Runners, generate a token
+#   6. Set RUNNER_TOKEN in .env, then: docker compose restart runner
+
+services:
+
+  # ─── PostgreSQL ────────────────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: forgejo-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-forgejo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-forgejo}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-forgejo}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - forgejo-net
+
+  # ─── Redis ─────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: forgejo-redis
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - forgejo-net
+
+  # ─── Forgejo ───────────────────────────────────────────────────────────────
+  forgejo:
+    image: codeberg.org/forgejo/forgejo:9
+    container_name: forgejo
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      USER_UID: 1000
+      USER_GID: 1000
+      # Tell Forgejo to use PostgreSQL (also configurable via web installer)
+      FORGEJO__database__DB_TYPE: postgres
+      FORGEJO__database__HOST: db:5432
+      FORGEJO__database__NAME: ${POSTGRES_DB:-forgejo}
+      FORGEJO__database__USER: ${POSTGRES_USER:-forgejo}
+      FORGEJO__database__PASSWD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      # Redis cache
+      FORGEJO__cache__ENABLED: "true"
+      FORGEJO__cache__ADAPTER: redis
+      FORGEJO__cache__HOST: "redis://redis:6379/0?pool_size=100&idle_timeout=180s"
+      # Redis session
+      FORGEJO__session__PROVIDER: redis
+      FORGEJO__session__PROVIDER_CONFIG: "redis://redis:6379/1"
+      # Queue
+      FORGEJO__queue__TYPE: redis
+      FORGEJO__queue__CONN_STR: "redis://redis:6379/2"
+      # Enable Actions
+      FORGEJO__actions__ENABLED: "true"
+      # Server
+      FORGEJO__server__DOMAIN: ${FORGEJO_DOMAIN:-localhost}
+      FORGEJO__server__ROOT_URL: ${FORGEJO_ROOT_URL:-http://localhost:3000}
+      FORGEJO__server__HTTP_PORT: "3000"
+      FORGEJO__server__SSH_PORT: "22"
+      FORGEJO__server__SSH_LISTEN_PORT: "22"
+    ports:
+      - "${FORGEJO_HTTP_PORT:-3000}:3000"   # Web UI
+      - "${FORGEJO_SSH_PORT:-2222}:22"      # SSH git access
+    volumes:
+      - forgejo-data:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - forgejo-net
+
+  # ─── Docker-in-Docker (for Actions runner isolation) ───────────────────────
+  dind:
+    image: docker:dind
+    container_name: forgejo-dind
+    restart: unless-stopped
+    privileged: true
+    environment:
+      DOCKER_TLS_CERTDIR: ""   # disable TLS for internal use
+    volumes:
+      - dind-data:/var/lib/docker
+    networks:
+      - forgejo-net
+
+  # ─── Forgejo Actions Runner ────────────────────────────────────────────────
+  runner:
+    image: code.forgejo.org/forgejo/act_runner:latest
+    container_name: forgejo-runner
+    restart: unless-stopped
+    depends_on:
+      - forgejo
+      - dind
+    environment:
+      DOCKER_HOST: tcp://dind:2375
+      FORGEJO_INSTANCE_URL: ${FORGEJO_RUNNER_URL:-http://forgejo:3000}
+      FORGEJO_RUNNER_REGISTRATION_TOKEN: ${RUNNER_TOKEN:-}
+      FORGEJO_RUNNER_NAME: ${RUNNER_NAME:-homelab-runner}
+      FORGEJO_RUNNER_LABELS: >-
+        ubuntu-latest:docker://catthehacker/ubuntu:act-22.04,
+        ubuntu-22.04:docker://catthehacker/ubuntu:act-22.04,
+        docker:docker://catthehacker/ubuntu:act-22.04
+    volumes:
+      - runner-data:/data
+    networks:
+      - forgejo-net
+
+# ─── Volumes ───────────────────────────────────────────────────────────────
+volumes:
+  forgejo-data:
+  db-data:
+  redis-data:
+  dind-data:
+  runner-data:
+
+# ─── Networks ──────────────────────────────────────────────────────────────
+networks:
+  forgejo-net:
+    driver: bridge
