@@ -1,0 +1,57 @@
+# .forgejo/workflows/ci.yml
+# Drop this in any repo under .forgejo/workflows/ to verify your runner works.
+# Mirrors GitHub Actions syntax — existing GHA workflows need minimal changes.
+
+name: CI
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest   # matches the label on your act_runner
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show environment
+        run: |
+          echo "Runner: $(uname -a)"
+          echo "Docker: $(docker version --format '{{.Client.Version}}' 2>/dev/null || echo 'not available')"
+          echo "Ref: ${{ github.ref }}"
+          echo "SHA: ${{ github.sha }}"
+
+      - name: Run tests
+        run: |
+          echo "Put your build/test commands here"
+          # e.g. for a Go project:
+          # go test ./...
+          # e.g. for Node:
+          # npm ci && npm test
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: test
+    # Only build image on main branch pushes
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ github.repository }}:${{ github.sha }} .
+          docker tag ${{ github.repository }}:${{ github.sha }} ${{ github.repository }}:latest
+          echo "Image built: ${{ github.repository }}:latest"
+
+      # Optional: push to Forgejo's built-in container registry
+      # - name: Push to Forgejo registry
+      #   run: |
+      #     echo "${{ secrets.REGISTRY_PASSWORD }}" | \
+      #       docker login ${{ env.FORGEJO_DOMAIN }} -u ${{ secrets.REGISTRY_USER }} --password-stdin
+      #     docker push ${{ env.FORGEJO_DOMAIN }}/${{ github.repository }}:latest
+      
